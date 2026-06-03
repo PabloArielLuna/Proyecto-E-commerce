@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Producto – Librería Digital</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Variables (idénticas al index) ── */
+    :root {
+      --cream:   #f5f0e8;
+      --cream2:  #ede6d6;
+      --paper:   #faf7f2;
+      --ink:     #1a1510;
+      --ink2:    #3d3328;
+      --forest:  #2d5a3d;
+      --forest2: #1e3d2a;
+      --gold:    #c4922a;
+      --gold2:   #e8b84b;
+      --red:     #9b2c2c;
+      --muted:   #8a7d6b;
+      --border:  #d4c9b5;
+      --shadow:  rgba(26,21,16,.12);
+
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'Lora', Georgia, serif;
+      --font-ui:      'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--forest2);
+      border-bottom: 3px solid var(--gold);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem;
+      height: 64px;
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      font-weight: 900;
+      color: var(--cream);
+      letter-spacing: -.5px;
+      display: flex; align-items: center; gap: .55rem;
+      text-decoration: none;
+    }
+    .nav-logo .accent { color: var(--gold2); font-style: italic; }
+
+    .btn-volver {
+      font-family: var(--font-ui);
+      font-size: .8rem;
+      font-weight: 500;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: .45rem 1rem;
+      background: transparent;
+      color: var(--cream2);
+      border: 1.5px solid rgba(255,255,255,.25);
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex; align-items: center; gap: .45rem;
+      transition: background .2s, border-color .2s, color .2s;
+      text-decoration: none;
+    }
+    .btn-volver:hover {
+      background: rgba(255,255,255,.08);
+      border-color: var(--gold2);
+      color: var(--gold2);
+    }
+    .btn-volver svg { width: 14px; height: 14px; fill: currentColor; }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb {
+      padding: 1rem 2.5rem;
+      font-family: var(--font-ui);
+      font-size: .72rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .breadcrumb span { color: var(--forest); }
+
+    /* ── MAIN ── */
+    .product-page {
+      max-width: 900px;
+      margin: 3rem auto;
+      padding: 0 2.5rem;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 3.5rem;
+      align-items: start;
+    }
+
+    /* ── COVER ── */
+    .product-cover-wrap {
+      position: sticky;
+      top: 90px;
+    }
+    .product-cover {
+      aspect-ratio: 2/3;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 6px 10px 32px var(--shadow), -2px 0 0 rgba(0,0,0,.08);
+      position: relative;
+    }
+    .product-cover-art {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    .product-cover-art .cover-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.1rem;
+      line-height: 1.25;
+      margin-bottom: .6rem;
+    }
+    .product-cover-art .cover-author {
+      font-family: var(--font-ui);
+      font-size: .7rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      opacity: .75;
+    }
+    .product-cover-art::after {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 8px;
+      background: rgba(0,0,0,.15);
+    }
+    .badge-tipo {
+      position: absolute; top: .8rem; right: .8rem;
+      font-family: var(--font-ui);
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: .25rem .6rem;
+      border-radius: 2px;
+      background: rgba(0,0,0,.3);
+      color: rgba(255,255,255,.9);
+    }
+
+    /* Cover colors – idénticos al index */
+    .cover-1 { background: #2d5a3d; color: #f5e6c8; }
+    .cover-2 { background: #4a2c6b; color: #f0e8ff; }
+    .cover-3 { background: #8b3a1a; color: #fdf0e0; }
+    .cover-4 { background: #1a3a5c; color: #e0eeff; }
+    .cover-5 { background: #5c3a1a; color: #fff0d8; }
+    .cover-6 { background: #2a5c4a; color: #e0fff5; }
+    .cover-7 { background: #6b2a2a; color: #ffe0e0; }
+    .cover-8 { background: #3a3a1a; color: #fffff0; }
+
+    /* ── INFO ── */
+    .product-info { padding-top: .5rem; }
+
+    .product-categoria {
+      font-family: var(--font-ui);
+      font-size: .68rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--forest);
+      font-weight: 500;
+      margin-bottom: .5rem;
+    }
+
+    .product-titulo {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: .5rem;
+      color: var(--ink);
+    }
+
+    .product-autor {
+      font-family: var(--font-ui);
+      font-size: .88rem;
+      color: var(--muted);
+      margin-bottom: 1.8rem;
+    }
+    .product-autor strong { color: var(--ink2); }
+
+    .divider {
+      height: 1.5px;
+      background: var(--border);
+      margin-bottom: 1.8rem;
+    }
+
+    .product-precio {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--ink);
+      margin-bottom: 1.5rem;
+      display: flex; align-items: baseline; gap: .2rem;
+    }
+    .product-precio .currency {
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--muted);
+      vertical-align: super;
+    }
+
+    .descuento-info {
+      display: flex; align-items: flex-start; gap: .75rem;
+      background: #eef7f1;
+      border: 1.5px solid #b5d9c4;
+      border-radius: 4px;
+      padding: .85rem 1rem;
+      margin-bottom: 1.8rem;
+      font-family: var(--font-ui);
+      font-size: .78rem;
+      color: var(--forest2);
+      line-height: 1.45;
+    }
+    .descuento-info svg {
+      width: 16px; height: 16px;
+      fill: var(--forest);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .btn-agregar {
+      font-family: var(--font-ui);
+      font-size: .82rem;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: .75rem 2rem;
+      background: var(--forest);
+      color: var(--cream);
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: .5rem;
+      transition: background .2s;
+      margin-bottom: .75rem;
+      width: 100%;
+      justify-content: center;
+    }
+    .btn-agregar:hover { background: var(--forest2); }
+    .btn-agregar svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .6rem 1.5rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1.5px solid var(--border);
+    }
+    .meta-item {
+      font-family: var(--font-ui);
+      font-size: .75rem;
+    }
+    .meta-item .label {
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: .15rem;
+    }
+    .meta-item .value {
+      font-weight: 500;
+      color: var(--ink2);
+    }
+
+    /* ── NOT FOUND ── */
+    .not-found {
+      max-width: 500px;
+      margin: 6rem auto;
+      text-align: center;
+      padding: 0 2rem;
+    }
+    .not-found-icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+    }
+    .not-found h2 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: .75rem;
+      color: var(--ink);
+    }
+    .not-found p {
+      font-family: var(--font-ui);
+      font-size: .9rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    .btn-volver-primary {
+      font-family: var(--font-ui);
+      font-size: .82rem;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: .75rem 2rem;
+      background: var(--gold);
+      color: var(--ink);
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background .2s;
+      display: inline-flex; align-items: center; gap: .5rem;
+    }
+    .btn-volver-primary:hover { background: var(--gold2); }
+    .btn-volver-primary svg { width: 14px; height: 14px; fill: currentColor; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--ink);
+      color: var(--cream);
+      font-family: var(--font-ui);
+      font-size: .82rem;
+      padding: .65rem 1.4rem;
+      border-radius: 3px;
+      border-left: 3px solid var(--gold);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s, transform .3s;
+      white-space: nowrap;
+      z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .navbar { padding: 0 1rem; }
+      .breadcrumb { padding: .75rem 1rem; }
+      .product-page {
+        grid-template-columns: 1fr;
+        padding: 0 1rem;
+        margin: 1.5rem auto;
+        gap: 2rem;
+      }
+      .product-cover-wrap { position: static; max-width: 220px; margin: 0 auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">
+    Librería <span class="accent">Digital</span>
+  </a>
+  <a href="index.html" class="btn-volver">
+    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    Volver al catálogo
+  </a>
+</nav>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb" id="breadcrumb">
+  Catálogo &rsaquo; <span id="breadcrumbNombre">Producto</span>
+</div>
+
+<!-- CONTENIDO -->
+<div id="product"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ── Datos ── */
+  const productos = [
+    { id: 1, titulo: "El Arte de la Programación", autor: "Donald Knuth",     precio: 4500, tipo: "Libro",   categoria: "Tecnología", cover: "cover-1" },
+    { id: 2, titulo: "Python para Todos",          autor: "Eric Matthes",     precio: 2800, tipo: "Curso",   categoria: "Tecnología", cover: "cover-2" },
+    { id: 3, titulo: "Cien Años de Soledad",       autor: "García Márquez",   precio: 1900, tipo: "Libro",   categoria: "Literatura", cover: "cover-3" },
+    { id: 4, titulo: "Diseño de Algoritmos",       autor: "S. Dasgupta",      precio: 3200, tipo: "Digital", categoria: "Tecnología", cover: "cover-4" },
+    { id: 5, titulo: "El Principito",              autor: "Antoine de S-E",   precio: 1200, tipo: "Libro",   categoria: "Literatura", cover: "cover-5" },
+    { id: 6, titulo: "Bases de Datos",             autor: "Ramakrishnan",     precio: 3800, tipo: "Curso",   categoria: "Tecnología", cover: "cover-6" },
+    { id: 7, titulo: "Clean Code",                 autor: "Robert C. Martin", precio: 2600, tipo: "Digital", categoria: "Tecnología", cover: "cover-7" },
+    { id: 8, titulo: "Sapiens",                    autor: "Yuval Noah Harari",precio: 2200, tipo: "Libro",   categoria: "Historia",   cover: "cover-8" },
+  ];
+
+  const params  = new URLSearchParams(window.location.search);
+  const id      = parseInt(params.get("id"));
+  const producto = productos.find(p => p.id === id);
+  const container = document.getElementById("product");
+
+  if (!producto) {
+    /* ── Producto no encontrado ── */
+    document.getElementById("breadcrumbNombre").textContent = "No encontrado";
+    container.innerHTML = `
+      <div class="not-found">
+        <div class="not-found-icon">📚</div>
+        <h2>Producto no encontrado</h2>
+        <p>El producto que buscás no existe o fue removido del catálogo.<br>Volvé al inicio para explorar todos nuestros títulos.</p>
+        <button class="btn-volver-primary" onclick="window.location.href='index.html'">
+          <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          Volver al catálogo
+        </button>
+      </div>
+    `;
+  } else {
+    /* ── Render producto ── */
+    document.title = `${producto.titulo} – Librería Digital`;
+    document.getElementById("breadcrumbNombre").textContent = producto.titulo;
+
+    container.innerHTML = `
+      <div class="product-page">
+        <div class="product-cover-wrap">
+          <div class="product-cover">
+            <div class="product-cover-art ${producto.cover}">
+              <span class="cover-title">${producto.titulo}</span>
+              <span class="cover-author">${producto.autor}</span>
+            </div>
+            <span class="badge-tipo">${producto.tipo}</span>
+          </div>
+        </div>
+
+        <div class="product-info">
+          <p class="product-categoria">${producto.categoria}</p>
+          <h1 class="product-titulo">${producto.titulo}</h1>
+          <p class="product-autor">por <strong>${producto.autor}</strong></p>
+
+          <div class="divider"></div>
+
+          <div class="product-precio">
+            <span class="currency">$</span>${producto.precio.toLocaleString('es-AR')}
+          </div>
+
+          <div class="descuento-info">
+            <svg viewBox="0 0 24 24"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
+            <span>Iniciá sesión y obtené <strong>5% de descuento</strong> sobre el precio de este producto.</span>
+          </div>
+
+          <button class="btn-agregar" onclick="addToCart()">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            Agregar al carrito
+          </button>
+
+          <div class="meta-grid">
+            <div class="meta-item">
+              <span class="label">Tipo</span>
+              <span class="value">${producto.tipo}</span>
+            </div>
+            <div class="meta-item">
+              <span class="label">Categoría</span>
+              <span class="value">${producto.categoria}</span>
+            </div>
+            <div class="meta-item">
+              <span class="label">Autor</span>
+              <span class="value">${producto.autor}</span>
+            </div>
+            <div class="meta-item">
+              <span class="label">Disponibilidad</span>
+              <span class="value" style="color:var(--forest)">En stock</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ── Toast ── */
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  function addToCart() {
+    showToast(`📚 "${producto.titulo}" agregado al carrito`);
+  }
+</script>
+</body>
+</html>

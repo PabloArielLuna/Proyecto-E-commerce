@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout – Librería Digital</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --cream:   #f5f0e8;
+      --cream2:  #ede6d6;
+      --paper:   #faf7f2;
+      --ink:     #1a1510;
+      --ink2:    #3d3328;
+      --forest:  #2d5a3d;
+      --forest2: #1e3d2a;
+      --gold:    #c4922a;
+      --gold2:   #e8b84b;
+      --red:     #9b2c2c;
+      --muted:   #8a7d6b;
+      --border:  #d4c9b5;
+      --shadow:  rgba(26,21,16,.12);
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'Lora', Georgia, serif;
+      --font-ui:      'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--forest2);
+      border-bottom: 3px solid var(--gold);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem;
+      height: 64px;
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.45rem; font-weight: 900;
+      color: var(--cream); letter-spacing: -.5px;
+      display: flex; align-items: center; gap: .55rem;
+      text-decoration: none;
+    }
+    .nav-logo .accent { color: var(--gold2); font-style: italic; }
+    .btn-volver {
+      font-family: var(--font-ui); font-size: .8rem; font-weight: 500;
+      letter-spacing: .05em; text-transform: uppercase;
+      padding: .45rem 1rem; background: transparent;
+      color: var(--cream2); border: 1.5px solid rgba(255,255,255,.25);
+      border-radius: 3px; cursor: pointer;
+      display: flex; align-items: center; gap: .45rem;
+      transition: background .2s, border-color .2s, color .2s;
+      text-decoration: none;
+    }
+    .btn-volver:hover { background: rgba(255,255,255,.08); border-color: var(--gold2); color: var(--gold2); }
+    .btn-volver svg { width: 14px; height: 14px; fill: currentColor; }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb {
+      padding: 1rem 2.5rem;
+      font-family: var(--font-ui); font-size: .72rem;
+      letter-spacing: .06em; text-transform: uppercase;
+      color: var(--muted); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .breadcrumb .sep { color: var(--border); }
+    .breadcrumb .active { color: var(--forest); font-weight: 500; }
+
+    /* ── PROGRESS STEPS ── */
+    .steps-bar {
+      background: var(--cream); border-bottom: 1.5px solid var(--border);
+      padding: 1.2rem 2.5rem;
+      display: flex; align-items: center; justify-content: center; gap: 0;
+    }
+    .step {
+      display: flex; align-items: center; gap: .55rem;
+      font-family: var(--font-ui); font-size: .72rem; font-weight: 500;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .step.active { color: var(--forest); }
+    .step.done   { color: var(--gold); }
+    .step-num {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; font-weight: 700;
+      background: var(--paper);
+      transition: all .2s;
+    }
+    .step.active .step-num { border-color: var(--forest); background: var(--forest); color: #fff; }
+    .step.done   .step-num { border-color: var(--gold); background: var(--gold); color: var(--ink); }
+    .step-sep {
+      width: 48px; height: 1.5px;
+      background: var(--border); margin: 0 .5rem;
+    }
+    .step.done + .step-sep { background: var(--gold); }
+
+    /* ── LAYOUT ── */
+    .checkout-layout {
+      max-width: 1020px;
+      margin: 2.5rem auto 4rem;
+      padding: 0 2.5rem;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    /* ── SECTIONS ── */
+    .form-section {
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .section-head {
+      padding: 1.1rem 1.4rem;
+      background: var(--forest2);
+      color: var(--cream);
+      display: flex; align-items: center; gap: .7rem;
+    }
+    .section-head .s-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.3);
+      font-family: var(--font-ui); font-size: .68rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-head h2 {
+      font-family: var(--font-display);
+      font-size: 1rem; font-weight: 700;
+    }
+    .section-body { padding: 1.4rem; }
+
+    /* ── ENTREGA OPTIONS ── */
+    .entrega-options { display: flex; gap: 1rem; margin-bottom: 1.4rem; }
+    .entrega-opt {
+      flex: 1;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex; flex-direction: column; align-items: center;
+      gap: .5rem; text-align: center;
+      background: var(--paper);
+    }
+    .entrega-opt:hover { border-color: var(--forest); }
+    .entrega-opt.selected { border-color: var(--forest); background: #eef7f1; }
+    .entrega-opt svg { width: 28px; height: 28px; fill: var(--muted); transition: fill .2s; }
+    .entrega-opt.selected svg { fill: var(--forest); }
+    .entrega-opt .opt-label {
+      font-family: var(--font-ui); font-size: .78rem; font-weight: 500;
+      letter-spacing: .06em; text-transform: uppercase;
+      color: var(--ink2); transition: color .2s;
+    }
+    .entrega-opt.selected .opt-label { color: var(--forest2); }
+    .entrega-opt .opt-sub {
+      font-family: var(--font-ui); font-size: .68rem;
+      color: var(--muted); line-height: 1.4;
+    }
+
+    /* ── FORM FIELDS ── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-row.single { grid-template-columns: 1fr; }
+    .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: .35rem; }
+    .form-label {
+      font-family: var(--font-ui); font-size: .7rem; font-weight: 500;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--ink2);
+    }
+    .form-label span { color: var(--red); margin-left: 2px; }
+    .form-input {
+      padding: .65rem .85rem;
+      font-family: var(--font-body); font-size: .88rem;
+      border: 1.5px solid var(--border); border-radius: 3px;
+      background: var(--paper); color: var(--ink);
+      outline: none; transition: border-color .2s, box-shadow .2s;
+    }
+    .form-input:focus {
+      border-color: var(--forest);
+      box-shadow: 0 0 0 3px rgba(45,90,61,.1);
+    }
+    .form-input::placeholder { color: var(--muted); opacity: .65; }
+    .form-input.error { border-color: var(--red); }
+    .form-hint {
+      font-family: var(--font-ui); font-size: .68rem;
+      color: var(--muted);
+    }
+
+    /* ── LOCAL PICKUP INFO ── */
+    .local-info {
+      background: #eef7f1; border: 1.5px solid #b5d9c4;
+      border-radius: 4px; padding: 1rem 1.1rem;
+      display: none;
+    }
+    .local-info.visible { display: flex; gap: .75rem; }
+    .local-info svg { width: 20px; height: 20px; fill: var(--forest); flex-shrink: 0; margin-top: 2px; }
+    .local-info-text { font-family: var(--font-ui); font-size: .78rem; color: var(--forest2); line-height: 1.55; }
+    .local-info-text strong { display: block; font-weight: 600; margin-bottom: .2rem; }
+
+    /* ── TARJETA ── */
+    .card-preview {
+      background: linear-gradient(135deg, var(--forest2) 0%, #2d5a3d 100%);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      height: 130px;
+      box-shadow: 0 8px 24px rgba(26,21,16,.2);
+    }
+    .card-preview::before {
+      content: '';
+      position: absolute; top: -30px; right: -30px;
+      width: 130px; height: 130px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.05);
+    }
+    .card-preview::after {
+      content: '';
+      position: absolute; bottom: -20px; right: 40px;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.04);
+    }
+    .card-chip {
+      width: 32px; height: 24px;
+      background: var(--gold);
+      border-radius: 4px;
+      margin-bottom: .9rem;
+      position: relative;
+    }
+    .card-chip::after {
+      content: '';
+      position: absolute; inset: 4px;
+      border: 1px solid rgba(0,0,0,.2);
+      border-radius: 2px;
+    }
+    .card-number {
+      font-family: var(--font-ui); font-size: 1rem; font-weight: 500;
+      color: rgba(255,255,255,.9); letter-spacing: .2em;
+      margin-bottom: .6rem;
+    }
+    .card-bottom {
+      display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    .card-holder, .card-exp {
+      font-family: var(--font-ui); font-size: .68rem;
+      color: rgba(255,255,255,.6); letter-spacing: .06em; text-transform: uppercase;
+    }
+    .card-holder .val, .card-exp .val {
+      color: rgba(255,255,255,.9); font-size: .8rem;
+      display: block; margin-top: .1rem;
+    }
+
+    /* ── CARD TYPE ICONS ── */
+    .card-types {
+      display: flex; gap: .5rem; margin-bottom: 1.2rem;
+    }
+    .card-type-icon {
+      padding: .25rem .7rem;
+      border: 1.5px solid var(--border);
+      border-radius: 3px;
+      font-family: var(--font-ui); font-size: .65rem; font-weight: 700;
+      letter-spacing: .04em;
+      color: var(--muted);
+      transition: all .2s;
+      cursor: default;
+    }
+    .card-type-icon.active { border-color: var(--forest); color: var(--forest2); background: #eef7f1; }
+
+    /* ── SECURE BADGE ── */
+    .secure-badge {
+      display: flex; align-items: center; gap: .5rem;
+      font-family: var(--font-ui); font-size: .7rem; color: var(--muted);
+      margin-top: 1rem; padding-top: .9rem;
+      border-top: 1px solid var(--border);
+    }
+    .secure-badge svg { width: 14px; height: 14px; fill: var(--forest); }
+
+    /* ── ORDER SUMMARY ── */
+    .order-box {
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      position: sticky;
+      top: 88px;
+    }
+    .order-head {
+      padding: 1rem 1.3rem;
+      border-bottom: 1.5px solid var(--border);
+      background: var(--forest2); border-radius: 4px 4px 0 0;
+    }
+    .order-head h3 {
+      font-family: var(--font-display);
+      font-size: .98rem; font-weight: 700; color: var(--cream);
+    }
+    .order-items { padding: 1rem 1.3rem; border-bottom: 1.5px solid var(--border); }
+    .order-item {
+      display: flex; align-items: flex-start; gap: .75rem;
+      padding: .55rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .order-item:last-child { border-bottom: none; }
+    .order-item-cover {
+      width: 32px; height: 48px;
+      border-radius: 2px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: .4rem; font-weight: 700;
+      text-align: center; padding: .2rem; color: #fff;
+    }
+    .order-item-info { flex: 1; min-width: 0; }
+    .order-item-title {
+      font-family: var(--font-display); font-size: .78rem; font-weight: 700;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      color: var(--ink);
+    }
+    .order-item-qty {
+      font-family: var(--font-ui); font-size: .68rem; color: var(--muted);
+    }
+    .order-item-price {
+      font-family: var(--font-display); font-size: .82rem; font-weight: 700;
+      color: var(--ink); white-space: nowrap;
+    }
+    .order-totals { padding: 1rem 1.3rem; }
+    .total-row {
+      display: flex; justify-content: space-between;
+      font-family: var(--font-ui); font-size: .8rem; color: var(--ink2);
+      margin-bottom: .4rem;
+    }
+    .total-row.desc { color: var(--forest); }
+    .total-row.desc span:last-child::before { content: '− '; }
+    .total-row.ship { color: var(--muted); font-style: italic; }
+    .total-row.final {
+      font-family: var(--font-display);
+      font-size: 1.1rem; font-weight: 700; color: var(--ink);
+      border-top: 2px solid var(--border);
+      padding-top: .6rem; margin-top: .3rem; margin-bottom: 0;
+    }
+    .promo-row {
+      display: flex; gap: .5rem; margin-top: .9rem; margin-bottom: .9rem;
+    }
+    .promo-input {
+      flex: 1; padding: .55rem .8rem;
+      font-family: var(--font-ui); font-size: .78rem;
+      border: 1.5px solid var(--border); border-radius: 3px;
+      background: var(--paper); color: var(--ink); outline: none;
+      transition: border-color .2s;
+    }
+    .promo-input:focus { border-color: var(--forest); }
+    .promo-input::placeholder { color: var(--muted); opacity: .6; }
+    .btn-promo {
+      padding: .55rem 1rem;
+      font-family: var(--font-ui); font-size: .72rem; font-weight: 500;
+      letter-spacing: .06em; text-transform: uppercase;
+      background: var(--ink2); color: var(--cream);
+      border: none; border-radius: 3px; cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-promo:hover { background: var(--ink); }
+
+    /* ── BTN PAGAR ── */
+    .btn-pay {
+      width: 100%; padding: .95rem;
+      background: var(--forest);
+      color: var(--cream);
+      font-family: var(--font-ui); font-size: .85rem; font-weight: 500;
+      letter-spacing: .1em; text-transform: uppercase;
+      border: none; border-radius: 3px; cursor: pointer;
+      transition: background .2s, transform .1s;
+      display: flex; align-items: center; justify-content: center; gap: .55rem;
+      margin-top: 1.1rem;
+    }
+    .btn-pay:hover { background: var(--forest2); }
+    .btn-pay:active { transform: scale(.99); }
+    .btn-pay svg { width: 16px; height: 16px; fill: currentColor; }
+
+    /* ── SUCCESS OVERLAY ── */
+    .success-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(26,21,16,.6);
+      backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+    }
+    .success-overlay.show { display: flex; }
+    .success-box {
+      background: var(--paper);
+      border-radius: 6px;
+      padding: 3rem 2.5rem;
+      max-width: 420px; width: 90%;
+      text-align: center;
+      border: 2px solid var(--border);
+      box-shadow: 0 24px 64px rgba(26,21,16,.25);
+      animation: popIn .4s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes popIn {
+      from { transform: scale(.88); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .success-icon {
+      width: 64px; height: 64px;
+      background: var(--forest);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+    .success-icon svg { width: 32px; height: 32px; fill: #fff; }
+    .success-box h2 {
+      font-family: var(--font-display);
+      font-size: 1.7rem; font-weight: 900;
+      margin-bottom: .6rem; color: var(--ink);
+    }
+    .success-box p {
+      font-family: var(--font-ui); font-size: .85rem;
+      color: var(--muted); line-height: 1.6; margin-bottom: 1.8rem;
+    }
+    .success-num {
+      font-family: var(--font-ui); font-size: .72rem;
+      letter-spacing: .1em; text-transform: uppercase;
+      background: var(--cream2); border: 1px solid var(--border);
+      padding: .5rem 1rem; border-radius: 3px;
+      color: var(--ink2); margin-bottom: 1.8rem; display: inline-block;
+    }
+    .success-actions { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
+    .btn-success {
+      font-family: var(--font-ui); font-size: .78rem; font-weight: 500;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: .65rem 1.4rem; border-radius: 3px; cursor: pointer;
+      transition: all .2s; border: none; text-decoration: none;
+      display: inline-flex; align-items: center; gap: .4rem;
+    }
+    .btn-success-primary { background: var(--forest); color: var(--cream); }
+    .btn-success-primary:hover { background: var(--forest2); }
+    .btn-success-ghost {
+      background: transparent; color: var(--ink2);
+      border: 1.5px solid var(--border);
+    }
+    .btn-success-ghost:hover { border-color: var(--ink2); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--ink); color: var(--cream);
+      font-family: var(--font-ui); font-size: .8rem;
+      padding: .65rem 1.2rem; border-radius: 3px;
+      border-left: 3px solid var(--gold2);
+      z-index: 400; transition: transform .35s;
+      white-space: nowrap; pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 720px) {
+      .navbar { padding: 0 1rem; }
+      .breadcrumb { padding: .75rem 1rem; }
+      .checkout-layout { grid-template-columns: 1fr; padding: 0 1rem; margin: 1.5rem auto 3rem; }
+      .order-box { position: static; order: -1; }
+      .steps-bar { padding: 1rem; gap: 0; }
+      .step-sep { width: 24px; }
+      .entrega-options { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">
+    Librería <span class="accent">Digital</span>
+  </a>
+  <a href="index.html" class="btn-volver">
+    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    Volver
+  </a>
+</nav>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <span>Catálogo</span>
+  <span class="sep">›</span>
+  <span>Carrito</span>
+  <span class="sep">›</span>
+  <span class="active">Checkout</span>
+</div>
+
+<!-- STEPS -->
+<div class="steps-bar">
+  <div class="step done">
+    <span class="step-num">✓</span>
+    Carrito
+  </div>
+  <div class="step-sep"></div>
+  <div class="step active">
+    <span class="step-num">2</span>
+    Datos y pago
+  </div>
+  <div class="step-sep"></div>
+  <div class="step">
+    <span class="step-num">3</span>
+    Confirmación
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="checkout-layout">
+
+  <!-- FORMULARIO PRINCIPAL -->
+  <div class="checkout-forms">
+
+    <!-- 1. DATOS DE CONTACTO -->
+    <div class="form-section">
+      <div class="section-head">
+        <span class="s-num">1</span>
+        <h2>Datos de contacto</h2>
+      </div>
+      <div class="section-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="firstName">Nombre <span>*</span></label>
+            <input class="form-input" type="text" id="firstName" placeholder="Juan" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="lastName">Apellido <span>*</span></label>
+            <input class="form-input" type="text" id="lastName" placeholder="García" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="email">Email <span>*</span></label>
+            <input class="form-input" type="email" id="email" placeholder="tu@email.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="phone">Teléfono</label>
+            <input class="form-input" type="tel" id="phone" placeholder="+54 11 0000-0000" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. ENTREGA -->
+    <div class="form-section">
+      <div class="section-head">
+        <span class="s-num">2</span>
+        <h2>Método de entrega</h2>
+      </div>
+      <div class="section-body">
+        <div class="entrega-options">
+
+          <div class="entrega-opt selected" id="optEnvio" onclick="selectEntrega('envio')">
+            <svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+            <span class="opt-label">Envío a domicilio</span>
+            <span class="opt-sub">Recibí en 3–7 días hábiles</span>
+          </div>
+
+          <div class="entrega-opt" id="optLocal" onclick="selectEntrega('local')">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            <span class="opt-label">Retiro en local</span>
+            <span class="opt-sub">Disponible de lunes a viernes</span>
+          </div>
+
+        </div>
+
+        <!-- Dirección de envío -->
+        <div id="envioForm">
+          <div class="form-row single">
+            <div class="form-group">
+              <label class="form-label" for="address">Dirección <span>*</span></label>
+              <input class="form-input" type="text" id="address" placeholder="Av. Corrientes 1234, Piso 2°" />
+            </div>
+          </div>
+          <div class="form-row triple">
+            <div class="form-group">
+              <label class="form-label" for="city">Ciudad <span>*</span></label>
+              <input class="form-input" type="text" id="city" placeholder="Buenos Aires" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="province">Provincia <span>*</span></label>
+              <input class="form-input" type="text" id="province" placeholder="CABA" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="postal">Código postal <span>*</span></label>
+              <input class="form-input" type="text" id="postal" placeholder="C1001" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Info retiro en local -->
+        <div class="local-info" id="localInfo">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          <div class="local-info-text">
+            <strong>Librería Digital — Sucursal Centro</strong>
+            Av. Corrientes 2154, CABA · Lunes a viernes de 10 a 19 h<br>
+            Te avisaremos por email cuando tu pedido esté listo para retirar. Traé tu número de pedido o DNI.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 3. PAGO -->
+    <div class="form-section">
+      <div class="section-head">
+        <span class="s-num">3</span>
+        <h2>Datos de pago</h2>
+      </div>
+      <div class="section-body">
+
+        <!-- Vista previa tarjeta -->
+        <div class="card-preview">
+          <div class="card-chip"></div>
+          <div class="card-number" id="cardNumPreview">•••• •••• •••• ••••</div>
+          <div class="card-bottom">
+            <div class="card-holder">
+              <span>Titular</span>
+              <span class="val" id="cardNamePreview">NOMBRE APELLIDO</span>
+            </div>
+            <div class="card-exp">
+              <span>Vence</span>
+              <span class="val" id="cardExpPreview">MM / AA</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-types" id="cardTypes">
+          <span class="card-type-icon" id="ctVisa">VISA</span>
+          <span class="card-type-icon" id="ctMc">MC</span>
+          <span class="card-type-icon" id="ctAmex">AMEX</span>
+        </div>
+
+        <div class="form-row single">
+          <div class="form-group">
+            <label class="form-label" for="cardNumber">Número de tarjeta <span>*</span></label>
+            <input class="form-input" type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCardNumber(this)" />
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label class="form-label" for="cardName">Nombre en la tarjeta <span>*</span></label>
+            <input class="form-input" type="text" id="cardName" placeholder="JUAN GARCÍA" oninput="updateCardName(this)" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="cardExp">Vencimiento <span>*</span></label>
+            <input class="form-input" type="text" id="cardExp" placeholder="MM / AA" maxlength="7" oninput="formatExp(this)" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cardCvv">CVV / CVC <span>*</span></label>
+            <input class="form-input" type="text" id="cardCvv" placeholder="•••" maxlength="4" oninput="this.value=this.value.replace(/\D/g,'')" />
+            <span class="form-hint">3 dígitos al dorso de tu tarjeta</span>
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label class="form-label" for="installments">Cuotas</label>
+            <select class="form-input" id="installments">
+              <option value="1">1 pago sin interés</option>
+              <option value="3">3 cuotas sin interés</option>
+              <option value="6">6 cuotas sin interés</option>
+              <option value="12">12 cuotas (con interés)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="secure-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+          Tus datos están protegidos con encriptación SSL de 256 bits
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RESUMEN DEL PEDIDO -->
+  <aside>
+    <div class="order-box">
+      <div class="order-head">
+        <h3>Resumen del pedido</h3>
+      </div>
+      <div class="order-items" id="orderItems">
+        <!-- Poblado por JS -->
+      </div>
+      <div class="order-totals">
+        <div class="total-row">
+          <span>Subtotal</span>
+          <span id="orderSubtotal">$0,00</span>
+        </div>
+        <div class="total-row desc" id="orderDiscRow" style="display:none">
+          <span>Descuento (5%)</span>
+          <span id="orderDisc">$0,00</span>
+        </div>
+        <div class="total-row ship" id="orderShipRow">
+          <span>Envío</span>
+          <span id="orderShip">Calculando…</span>
+        </div>
+        <div class="total-row final">
+          <span>Total</span>
+          <span id="orderTotal">$0,00</span>
+        </div>
+
+        <div class="promo-row">
+          <input class="promo-input" type="text" id="promoCode" placeholder="Código de descuento" />
+          <button class="btn-promo" onclick="applyPromo()">Aplicar</button>
+        </div>
+
+        <button class="btn-pay" onclick="procesarPago()">
+          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+          Confirmar y pagar
+        </button>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+    </div>
+    <h2>¡Pedido confirmado!</h2>
+    <p>Tu compra fue procesada exitosamente. Recibirás un email de confirmación con todos los detalles.</p>
+    <div class="success-num" id="successOrderNum">Pedido #000000</div>
+    <div class="success-actions">
+      <a class="btn-success btn-success-primary" href="perfil.html">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+        Ver mis pedidos
+      </a>
+      <a class="btn-success btn-success-ghost" href="index.html">Seguir comprando</a>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ── Datos simulados del carrito (en producción vendrían de localStorage/sessionStorage) ── */
+  const mockCart = [
+    { id: 1, titulo: "El Arte de la Programación", autor: "Donald Knuth",    precio: 4500, cover: "cover-1", qty: 1 },
+    { id: 3, titulo: "Cien Años de Soledad",       autor: "García Márquez",  precio: 1900, cover: "cover-3", qty: 2 },
+    { id: 7, titulo: "Clean Code",                 autor: "Robert C. Martin",precio: 2600, cover: "cover-7", qty: 1 },
+  ];
+  const loggedIn = true; // Simula usuario logueado
+  let entregaMode = 'envio';
+  let promoApplied = false;
+
+  /* ── Render resumen ── */
+  function renderOrderSummary() {
+    const container = document.getElementById('orderItems');
+    container.innerHTML = mockCart.map(item => `
+      <div class="order-item">
+        <div class="order-item-cover ${item.cover}">${item.titulo}</div>
+        <div class="order-item-info">
+          <div class="order-item-title">${item.titulo}</div>
+          <div class="order-item-qty">Cantidad: ${item.qty}</div>
+        </div>
+        <div class="order-item-price">$${(item.precio * item.qty).toLocaleString('es-AR')}</div>
+      </div>
+    `).join('');
+
+    updateTotals();
+  }
+
+  function updateTotals() {
+    const subtotal   = mockCart.reduce((s, i) => s + i.precio * i.qty, 0);
+    const descuento  = loggedIn ? subtotal * 0.05 : 0;
+    const envio      = entregaMode === 'local' ? 0 : (subtotal > 5000 ? 0 : 850);
+    const total      = subtotal - descuento + envio;
+
+    document.getElementById('orderSubtotal').textContent = '$' + subtotal.toLocaleString('es-AR', {minimumFractionDigits:2});
+    document.getElementById('orderDisc').textContent     = '$' + descuento.toLocaleString('es-AR', {minimumFractionDigits:2});
+    document.getElementById('orderDiscRow').style.display = loggedIn ? 'flex' : 'none';
+    document.getElementById('orderShip').textContent     = entregaMode === 'local' ? 'Gratis (retiro)' : (envio === 0 ? 'Gratis' : '$' + envio.toLocaleString('es-AR', {minimumFractionDigits:2}));
+    document.getElementById('orderShipRow').style.display = 'flex';
+    document.getElementById('orderTotal').textContent    = '$' + total.toLocaleString('es-AR', {minimumFractionDigits:2});
+  }
+
+  /* ── Entrega ── */
+  function selectEntrega(mode) {
+    entregaMode = mode;
+    document.getElementById('optEnvio').classList.toggle('selected', mode === 'envio');
+    document.getElementById('optLocal').classList.toggle('selected', mode === 'local');
+    document.getElementById('envioForm').style.display  = mode === 'envio' ? 'block' : 'none';
+    document.getElementById('localInfo').classList.toggle('visible', mode === 'local');
+    updateTotals();
+  }
+
+  /* ── Tarjeta live preview ── */
+  function formatCardNumber(input) {
+    let v = input.value.replace(/\D/g, '').substring(0, 16);
+    v = v.replace(/(.{4})/g, '$1 ').trim();
+    input.value = v;
+    const display = v.length ? v.padEnd(19, '•').replace(/[0-9]/g, (m, i) => i < v.replace(/\s/g,'').length - 4 ? '•' : m) : '•••• •••• •••• ••••';
+    document.getElementById('cardNumPreview').textContent = v || '•••• •••• •••• ••••';
+    // Card type detection
+    const raw = v.replace(/\s/g,'');
+    document.getElementById('ctVisa').classList.toggle('active', raw.startsWith('4'));
+    document.getElementById('ctMc').classList.toggle('active', raw.startsWith('5'));
+    document.getElementById('ctAmex').classList.toggle('active', raw.startsWith('3'));
+  }
+  function updateCardName(input) {
+    const val = input.value.toUpperCase() || 'NOMBRE APELLIDO';
+    document.getElementById('cardNamePreview').textContent = val;
+  }
+  function formatExp(input) {
+    let v = input.value.replace(/\D/g,'').substring(0,4);
+    if (v.length >= 2) v = v.substring(0,2) + ' / ' + v.substring(2);
+    input.value = v;
+    document.getElementById('cardExpPreview').textContent = v || 'MM / AA';
+  }
+
+  /* ── Promo ── */
+  function applyPromo() {
+    const code = document.getElementById('promoCode').value.trim().toUpperCase();
+    if (code === 'LEER10') {
+      showToast('✅ Código aplicado: 10% extra de descuento');
+      promoApplied = true;
+    } else {
+      showToast('⚠️ Código no válido o ya utilizado');
+    }
+  }
+
+  /* ── Validar y pagar ── */
+  function procesarPago() {
+    const firstName = document.getElementById('firstName').value.trim();
+    const email     = document.getElementById('email').value.trim();
+    const cardNum   = document.getElementById('cardNumber').value.replace(/\s/g,'');
+    const cardName  = document.getElementById('cardName').value.trim();
+    const cardExp   = document.getElementById('cardExp').value.trim();
+    const cardCvv   = document.getElementById('cardCvv').value.trim();
+
+    if (!firstName || !email) { showToast('⚠️ Completá tus datos de contacto'); return; }
+
+    if (entregaMode === 'envio') {
+      const addr = document.getElementById('address').value.trim();
+      const city = document.getElementById('city').value.trim();
+      if (!addr || !city) { showToast('⚠️ Completá la dirección de envío'); return; }
+    }
+
+    if (cardNum.length < 16) { showToast('⚠️ Número de tarjeta incompleto'); return; }
+    if (!cardName)            { showToast('⚠️ Ingresá el nombre del titular'); return; }
+    if (cardExp.length < 7)   { showToast('⚠️ Fecha de vencimiento inválida'); return; }
+    if (cardCvv.length < 3)   { showToast('⚠️ CVV incompleto'); return; }
+
+    // Simular proceso
+    const btn = document.querySelector('.btn-pay');
+    btn.textContent = 'Procesando…';
+    btn.disabled = true;
+
+    setTimeout(() => {
+      const orderNum = '#' + Math.random().toString(36).substring(2,8).toUpperCase();
+      document.getElementById('successOrderNum').textContent = 'Pedido ' + orderNum;
+      document.getElementById('successOverlay').classList.add('show');
+    }, 1800);
+  }
+
+  /* ── Toast ── */
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  /* ── Init ── */
+  renderOrderSummary();
+</script>
+</body>
+</html>

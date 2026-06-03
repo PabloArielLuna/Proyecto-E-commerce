@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Perfil – Librería Digital</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --cream:   #f5f0e8;
+      --cream2:  #ede6d6;
+      --paper:   #faf7f2;
+      --ink:     #1a1510;
+      --ink2:    #3d3328;
+      --forest:  #2d5a3d;
+      --forest2: #1e3d2a;
+      --gold:    #c4922a;
+      --gold2:   #e8b84b;
+      --red:     #9b2c2c;
+      --muted:   #8a7d6b;
+      --border:  #d4c9b5;
+      --shadow:  rgba(26,21,16,.12);
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'Lora', Georgia, serif;
+      --font-ui:      'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--forest2);
+      border-bottom: 3px solid var(--gold);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem; height: 64px;
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.45rem; font-weight: 900;
+      color: var(--cream); letter-spacing: -.5px;
+      display: flex; align-items: center; gap: .55rem;
+      text-decoration: none;
+    }
+    .nav-logo .accent { color: var(--gold2); font-style: italic; }
+    .btn-volver {
+      font-family: var(--font-ui); font-size: .8rem; font-weight: 500;
+      letter-spacing: .05em; text-transform: uppercase;
+      padding: .45rem 1rem; background: transparent;
+      color: var(--cream2); border: 1.5px solid rgba(255,255,255,.25);
+      border-radius: 3px; cursor: pointer;
+      display: flex; align-items: center; gap: .45rem;
+      transition: background .2s, border-color .2s, color .2s;
+      text-decoration: none;
+    }
+    .btn-volver:hover { background: rgba(255,255,255,.08); border-color: var(--gold2); color: var(--gold2); }
+    .btn-volver svg { width: 14px; height: 14px; fill: currentColor; }
+
+    /* ── HERO PERFIL ── */
+    .profile-hero {
+      background: linear-gradient(135deg, var(--forest2) 0%, var(--forest) 70%);
+      padding: 2.5rem 2.5rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,.025) 39px, rgba(255,255,255,.025) 40px),
+                        repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,.025) 39px, rgba(255,255,255,.025) 40px);
+    }
+    .profile-hero-inner {
+      max-width: 1020px; margin: 0 auto;
+      position: relative;
+    }
+    .profile-top {
+      display: flex; align-items: flex-end; gap: 1.8rem;
+      padding-bottom: 0;
+    }
+    .avatar-wrap {
+      flex-shrink: 0;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--gold);
+      border: 3px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1.8rem; font-weight: 900;
+      color: var(--ink);
+      margin-bottom: -2px;
+      position: relative; z-index: 2;
+      flex-shrink: 0;
+    }
+    .profile-meta { padding-bottom: 1.5rem; flex: 1; }
+    .profile-meta .eyebrow {
+      font-family: var(--font-ui); font-size: .68rem;
+      letter-spacing: .15em; text-transform: uppercase;
+      color: rgba(196,146,42,.9); margin-bottom: .3rem;
+    }
+    .profile-meta h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 900; color: var(--cream);
+      margin-bottom: .3rem;
+    }
+    .profile-meta .sub {
+      font-family: var(--font-ui); font-size: .8rem;
+      color: rgba(245,240,232,.55);
+      display: flex; align-items: center; gap: .9rem; flex-wrap: wrap;
+    }
+    .profile-meta .sub span { display: flex; align-items: center; gap: .3rem; }
+    .profile-meta .sub svg { width: 12px; height: 12px; fill: currentColor; }
+
+    /* ── TABS ── */
+    .profile-tabs {
+      max-width: 1020px; margin: 0 auto;
+      display: flex; gap: 0; position: relative; z-index: 2;
+    }
+    .tab-btn {
+      font-family: var(--font-ui); font-size: .75rem; font-weight: 500;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: .85rem 1.4rem;
+      background: transparent; border: none;
+      color: rgba(245,240,232,.5);
+      cursor: pointer; transition: all .2s;
+      border-bottom: 2.5px solid transparent;
+      position: relative;
+    }
+    .tab-btn:hover { color: rgba(245,240,232,.8); }
+    .tab-btn.active {
+      color: var(--gold2);
+      border-bottom-color: var(--gold2);
+    }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      background: var(--cream);
+      border-bottom: 1.5px solid var(--border);
+    }
+    .stats-inner {
+      max-width: 1020px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      padding: 0 2.5rem;
+    }
+    .stat-item {
+      padding: 1.2rem 1rem;
+      border-right: 1px solid var(--border);
+      text-align: center;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 1.6rem; font-weight: 900;
+      color: var(--ink); line-height: 1;
+      margin-bottom: .2rem;
+    }
+    .stat-label {
+      font-family: var(--font-ui); font-size: .68rem;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── LAYOUT ── */
+    .profile-layout {
+      max-width: 1020px;
+      margin: 2rem auto 4rem;
+      padding: 0 2.5rem;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    /* ── SIDEBAR ── */
+    .profile-sidebar {
+      display: flex; flex-direction: column; gap: 1rem;
+      position: sticky; top: 88px;
+    }
+    .sidebar-box {
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .sidebar-head {
+      padding: .75rem 1rem;
+      background: var(--forest2);
+      font-family: var(--font-ui); font-size: .68rem;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(245,240,232,.7); font-weight: 500;
+    }
+    .sidebar-nav { padding: .4rem 0; }
+    .sidebar-link {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .6rem 1rem;
+      font-family: var(--font-ui); font-size: .8rem;
+      color: var(--ink2); text-decoration: none;
+      transition: background .15s, color .15s;
+      cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+    }
+    .sidebar-link:hover { background: var(--cream2); }
+    .sidebar-link.active { background: #eef7f1; color: var(--forest2); font-weight: 500; }
+    .sidebar-link svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; opacity: .6; }
+    .sidebar-link.active svg { opacity: 1; }
+
+    .sidebar-user {
+      padding: 1rem;
+      display: flex; flex-direction: column; gap: .3rem;
+    }
+    .sidebar-user .name {
+      font-family: var(--font-display); font-size: .95rem; font-weight: 700; color: var(--ink);
+    }
+    .sidebar-user .email {
+      font-family: var(--font-ui); font-size: .72rem; color: var(--muted);
+    }
+    .sidebar-user .badge {
+      font-family: var(--font-ui); font-size: .62rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      background: var(--forest); color: var(--cream);
+      padding: .18rem .55rem; border-radius: 2px;
+      display: inline-block; margin-top: .3rem;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .section-title {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 700;
+      color: var(--ink); margin-bottom: 1.2rem;
+      display: flex; align-items: baseline; justify-content: space-between;
+    }
+    .section-title .count {
+      font-family: var(--font-ui); font-size: .72rem;
+      color: var(--muted); letter-spacing: .06em; text-transform: uppercase;
+    }
+
+    /* ── FILTER CHIPS ── */
+    .filter-chips {
+      display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.4rem;
+    }
+    .chip {
+      font-family: var(--font-ui); font-size: .7rem; font-weight: 500;
+      letter-spacing: .06em; text-transform: uppercase;
+      padding: .3rem .8rem;
+      border: 1.5px solid var(--border); border-radius: 2px;
+      background: transparent; color: var(--ink2);
+      cursor: pointer; transition: all .2s;
+    }
+    .chip:hover, .chip.active {
+      background: var(--forest); color: var(--cream); border-color: var(--forest);
+    }
+
+    /* ── PEDIDO CARD ── */
+    .order-card {
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      margin-bottom: 1.2rem;
+      overflow: hidden;
+      transition: box-shadow .2s;
+    }
+    .order-card:hover { box-shadow: 0 4px 20px var(--shadow); }
+    .order-card-head {
+      padding: .9rem 1.2rem;
+      background: var(--cream2);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap;
+    }
+    .order-num {
+      font-family: var(--font-ui); font-size: .8rem; font-weight: 600;
+      color: var(--ink2);
+    }
+    .order-num strong { color: var(--ink); font-family: var(--font-display); font-size: .9rem; }
+    .order-head-right {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .order-date {
+      font-family: var(--font-ui); font-size: .72rem; color: var(--muted);
+    }
+    .order-total-label {
+      font-family: var(--font-display); font-size: .9rem; font-weight: 700; color: var(--ink);
+    }
+
+    /* Status badges */
+    .status-badge {
+      font-family: var(--font-ui); font-size: .62rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: .25rem .7rem; border-radius: 2px;
+      white-space: nowrap;
+    }
+    .status-pendiente   { background: #fff4d0; color: #7a5a00; border: 1px solid #e8c84b; }
+    .status-preparando  { background: #d4eeff; color: #004a7a; border: 1px solid #85c6f5; }
+    .status-enviado     { background: #e0f0ff; color: #1a4a7a; border: 1px solid #90c3f0; }
+    .status-entregado   { background: #d4f0e4; color: #1a5230; border: 1px solid #85d4a8; }
+    .status-cancelado   { background: #fce8e8; color: #7a1a1a; border: 1px solid #f0a0a0; }
+
+    /* Progress tracker */
+    .order-progress {
+      padding: .9rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; gap: 0;
+      overflow-x: auto;
+    }
+    .progress-step {
+      flex: 1; text-align: center; position: relative;
+      min-width: 80px;
+    }
+    .progress-step::before {
+      content: '';
+      position: absolute; top: 12px; left: 50%; right: -50%;
+      height: 2px; background: var(--border);
+      z-index: 0;
+    }
+    .progress-step:last-child::before { display: none; }
+    .progress-step.done::before  { background: var(--forest); }
+    .ps-dot {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--paper);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto .4rem;
+      position: relative; z-index: 1;
+      transition: all .2s;
+    }
+    .progress-step.done  .ps-dot { background: var(--forest); border-color: var(--forest); }
+    .progress-step.done  .ps-dot::after { content: '✓'; color: #fff; font-size: .6rem; font-weight: 700; }
+    .progress-step.active .ps-dot { border-color: var(--gold); background: var(--gold); }
+    .progress-step.active .ps-dot::after { content: '●'; color: var(--ink); font-size: .55rem; }
+    .ps-label {
+      font-family: var(--font-ui); font-size: .62rem;
+      letter-spacing: .05em; text-transform: uppercase;
+      color: var(--muted); line-height: 1.3;
+    }
+    .progress-step.done   .ps-label { color: var(--forest2); }
+    .progress-step.active .ps-label { color: var(--gold); font-weight: 600; }
+
+    /* Order items */
+    .order-card-items {
+      padding: .9rem 1.2rem;
+    }
+    .oci-item {
+      display: flex; align-items: center; gap: .9rem;
+      padding: .5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .oci-item:last-child { border-bottom: none; }
+    .oci-cover {
+      width: 32px; height: 48px;
+      border-radius: 2px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: .38rem; font-weight: 700;
+      text-align: center; padding: .2rem; color: #fff;
+    }
+    .oci-info { flex: 1; min-width: 0; }
+    .oci-title {
+      font-family: var(--font-display); font-size: .82rem; font-weight: 700;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink);
+    }
+    .oci-meta {
+      font-family: var(--font-ui); font-size: .68rem; color: var(--muted);
+    }
+    .oci-price {
+      font-family: var(--font-display); font-size: .82rem; font-weight: 700;
+      color: var(--ink); white-space: nowrap;
+    }
+
+    /* Order card footer */
+    .order-card-foot {
+      padding: .75rem 1.2rem;
+      border-top: 1px solid var(--border);
+      background: var(--paper);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: .75rem; flex-wrap: wrap;
+    }
+    .entrega-info {
+      font-family: var(--font-ui); font-size: .72rem; color: var(--muted);
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .entrega-info svg { width: 13px; height: 13px; fill: currentColor; }
+    .btn-detail {
+      font-family: var(--font-ui); font-size: .72rem; font-weight: 500;
+      letter-spacing: .06em; text-transform: uppercase;
+      padding: .38rem .9rem;
+      border: 1.5px solid var(--border); border-radius: 2px;
+      background: transparent; color: var(--ink2);
+      cursor: pointer; transition: all .2s;
+      text-decoration: none; display: inline-flex; align-items: center; gap: .35rem;
+    }
+    .btn-detail:hover { border-color: var(--forest); color: var(--forest2); background: #eef7f1; }
+    .btn-detail svg { width: 12px; height: 12px; fill: currentColor; }
+
+    /* ── PANEL: Editar datos ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .info-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+      background: var(--cream); border: 1.5px solid var(--border);
+      border-radius: 4px; padding: 1.4rem; margin-bottom: 1.5rem;
+    }
+    .info-field {}
+    .info-field .lbl {
+      font-family: var(--font-ui); font-size: .68rem; font-weight: 500;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: .25rem;
+    }
+    .info-field .val {
+      font-family: var(--font-body); font-size: .9rem; color: var(--ink2);
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-row.single { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: .35rem; }
+    .form-label {
+      font-family: var(--font-ui); font-size: .7rem; font-weight: 500;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--ink2);
+    }
+    .form-input {
+      padding: .65rem .85rem; font-family: var(--font-body); font-size: .88rem;
+      border: 1.5px solid var(--border); border-radius: 3px;
+      background: var(--paper); color: var(--ink); outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .form-input:focus { border-color: var(--forest); box-shadow: 0 0 0 3px rgba(45,90,61,.1); }
+    .form-input::placeholder { color: var(--muted); opacity: .6; }
+    .btn-save {
+      font-family: var(--font-ui); font-size: .8rem; font-weight: 500;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: .7rem 1.6rem;
+      background: var(--forest); color: var(--cream);
+      border: none; border-radius: 3px; cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-save:hover { background: var(--forest2); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center; padding: 4rem 2rem;
+      background: var(--cream); border: 1.5px solid var(--border); border-radius: 4px;
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+    .empty-state h3 {
+      font-family: var(--font-display); font-size: 1.3rem; font-weight: 700;
+      margin-bottom: .5rem; color: var(--ink);
+    }
+    .empty-state p { font-family: var(--font-ui); font-size: .85rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .btn-shop {
+      font-family: var(--font-ui); font-size: .8rem; font-weight: 500;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: .7rem 1.6rem;
+      background: var(--gold); color: var(--ink);
+      border: none; border-radius: 3px; cursor: pointer;
+      text-decoration: none; display: inline-block;
+      transition: background .2s;
+    }
+    .btn-shop:hover { background: var(--gold2); }
+
+    /* ── LOGOUT BTN ── */
+    .btn-logout {
+      font-family: var(--font-ui); font-size: .75rem; font-weight: 500;
+      letter-spacing: .06em; text-transform: uppercase;
+      padding: .55rem 1rem; width: 100%;
+      background: transparent; color: var(--red);
+      border: 1.5px solid rgba(155,44,44,.25);
+      border-radius: 3px; cursor: pointer;
+      transition: all .2s; margin-top: .5rem;
+    }
+    .btn-logout:hover { background: rgba(155,44,44,.06); border-color: var(--red); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--ink); color: var(--cream);
+      font-family: var(--font-ui); font-size: .8rem;
+      padding: .65rem 1.2rem; border-radius: 3px;
+      border-left: 3px solid var(--gold2);
+      z-index: 400; transition: transform .35s;
+      white-space: nowrap; pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 720px) {
+      .navbar { padding: 0 1rem; }
+      .profile-hero { padding: 1.5rem 1rem 0; }
+      .profile-top { gap: 1rem; }
+      .avatar-wrap { width: 60px; height: 60px; font-size: 1.3rem; }
+      .stats-inner { grid-template-columns: repeat(2, 1fr); padding: 0 1rem; }
+      .profile-layout { grid-template-columns: 1fr; padding: 0 1rem; }
+      .profile-sidebar { position: static; }
+      .profile-tabs { padding: 0 1rem; }
+      .form-row { grid-template-columns: 1fr; }
+      .info-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">
+    Librería <span class="accent">Digital</span>
+  </a>
+  <a href="index.html" class="btn-volver">
+    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    Volver
+  </a>
+</nav>
+
+<!-- HERO PERFIL -->
+<div class="profile-hero">
+  <div class="profile-hero-inner">
+    <div class="profile-top">
+      <div class="avatar-wrap" id="avatarInitials">JG</div>
+      <div class="profile-meta">
+        <p class="eyebrow">Mi cuenta</p>
+        <h1 id="heroName">Juan García</h1>
+        <p class="sub">
+          <span><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg> juan@email.com</span>
+          <span><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg> Cliente desde enero 2025</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="profile-tabs">
+      <button class="tab-btn active" onclick="switchTab('pedidos')">Mis pedidos</button>
+      <button class="tab-btn" onclick="switchTab('datos')">Mis datos</button>
+      <button class="tab-btn" onclick="switchTab('seguridad')">Seguridad</button>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-row">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num" id="statTotal">6</div>
+      <div class="stat-label">Pedidos totales</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="statPending">1</div>
+      <div class="stat-label">En curso</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="statSpend">$34.200</div>
+      <div class="stat-label">Total gastado</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">5%</div>
+      <div class="stat-label">Descuento activo</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="profile-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="profile-sidebar">
+    <div class="sidebar-box">
+      <div class="sidebar-user">
+        <span class="name">Juan García</span>
+        <span class="email">juan@email.com</span>
+        <span class="badge">✓ Cuenta verificada</span>
+      </div>
+    </div>
+
+    <div class="sidebar-box">
+      <div class="sidebar-head">Menú</div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-link active" onclick="switchTab('pedidos')">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+          Mis pedidos
+        </button>
+        <button class="sidebar-link" onclick="switchTab('datos')">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+          Mis datos
+        </button>
+        <button class="sidebar-link" onclick="switchTab('seguridad')">
+          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+          Seguridad
+        </button>
+        <button class="sidebar-link" onclick="switchTab('pedidos')">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          Mis direcciones
+        </button>
+      </nav>
+    </div>
+
+    <button class="btn-logout" onclick="showToast('👋 Sesión cerrada')">
+      Cerrar sesión
+    </button>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <main>
+
+    <!-- TAB: PEDIDOS -->
+    <div class="tab-panel active" id="panel-pedidos">
+      <div class="section-title">
+        Mis pedidos
+        <span class="count" id="ordersCount">6 pedidos</span>
+      </div>
+
+      <div class="filter-chips" id="filterChips">
+        <button class="chip active" onclick="filterOrders('todos', this)">Todos</button>
+        <button class="chip" onclick="filterOrders('pendiente', this)">Pendiente</button>
+        <button class="chip" onclick="filterOrders('preparando', this)">Preparando</button>
+        <button class="chip" onclick="filterOrders('enviado', this)">Enviado</button>
+        <button class="chip" onclick="filterOrders('entregado', this)">Entregado</button>
+      </div>
+
+      <div id="ordersList"></div>
+    </div>
+
+    <!-- TAB: DATOS -->
+    <div class="tab-panel" id="panel-datos">
+      <div class="section-title">Mis datos personales</div>
+
+      <div class="info-grid" style="margin-bottom:1.5rem">
+        <div class="info-field">
+          <div class="lbl">Nombre completo</div>
+          <div class="val">Juan García</div>
+        </div>
+        <div class="info-field">
+          <div class="lbl">Email</div>
+          <div class="val">juan@email.com</div>
+        </div>
+        <div class="info-field">
+          <div class="lbl">Teléfono</div>
+          <div class="val">+54 11 1234-5678</div>
+        </div>
+        <div class="info-field">
+          <div class="lbl">Miembro desde</div>
+          <div class="val">Enero 2025</div>
+        </div>
+      </div>
+
+      <div style="background:var(--cream);border:1.5px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:1.5rem;">
+        <div style="padding:.8rem 1.2rem;background:var(--forest2);font-family:var(--font-ui);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,240,232,.75);font-weight:500;">
+          Editar datos
+        </div>
+        <div style="padding:1.4rem;">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nombre</label>
+              <input class="form-input" type="text" value="Juan" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Apellido</label>
+              <input class="form-input" type="text" value="García" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input class="form-input" type="email" value="juan@email.com" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Teléfono</label>
+              <input class="form-input" type="tel" value="+54 11 1234-5678" />
+            </div>
+          </div>
+          <button class="btn-save" onclick="showToast('✅ Datos actualizados correctamente')">Guardar cambios</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: SEGURIDAD -->
+    <div class="tab-panel" id="panel-seguridad">
+      <div class="section-title">Seguridad de la cuenta</div>
+
+      <div style="background:var(--cream);border:1.5px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:1.5rem;">
+        <div style="padding:.8rem 1.2rem;background:var(--forest2);font-family:var(--font-ui);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,240,232,.75);font-weight:500;">
+          Cambiar contraseña
+        </div>
+        <div style="padding:1.4rem;">
+          <div class="form-row single">
+            <div class="form-group">
+              <label class="form-label">Contraseña actual</label>
+              <input class="form-input" type="password" placeholder="••••••••" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nueva contraseña</label>
+              <input class="form-input" type="password" placeholder="Mínimo 8 caracteres" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirmar nueva contraseña</label>
+              <input class="form-input" type="password" placeholder="Repetí la contraseña" />
+            </div>
+          </div>
+          <button class="btn-save" onclick="showToast('✅ Contraseña actualizada')">Actualizar contraseña</button>
+        </div>
+      </div>
+
+      <div style="background:var(--cream);border:1.5px solid var(--border);border-radius:4px;padding:1.2rem;display:flex;gap:.8rem;align-items:flex-start;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--forest)" style="flex-shrink:0;margin-top:2px"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+        <div>
+          <div style="font-family:var(--font-ui);font-size:.78rem;font-weight:600;color:var(--ink2);margin-bottom:.3rem;">Tu cuenta está protegida</div>
+          <div style="font-family:var(--font-ui);font-size:.73rem;color:var(--muted);line-height:1.5;">Último acceso: hoy, 10:32 hs · Buenos Aires, Argentina</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ── Datos de pedidos simulados ── */
+  const pedidos = [
+    {
+      id: 'LD-2025-A7F2',
+      fecha: '28 mayo 2025',
+      estado: 'enviado',
+      total: 9700,
+      entrega: 'Envío a domicilio',
+      items: [
+        { titulo: 'El Arte de la Programación', autor: 'Donald Knuth',   precio: 4500, qty: 1, cover: 'cover-1' },
+        { titulo: 'Clean Code',                 autor: 'R. C. Martin',   precio: 2600, qty: 1, cover: 'cover-7' },
+        { titulo: 'El Principito',              autor: 'Antoine de S-E', precio: 1200, qty: 2, cover: 'cover-5' },
+      ],
+      progress: ['done','done','done','active',''] // Confirmado, Preparando, Enviado, En camino, Entregado
+    },
+    {
+      id: 'LD-2025-B3C8',
+      fecha: '15 mayo 2025',
+      estado: 'entregado',
+      total: 5800,
+      entrega: 'Envío a domicilio',
+      items: [
+        { titulo: 'Python para Todos', autor: 'Eric Matthes',     precio: 2800, qty: 1, cover: 'cover-2' },
+        { titulo: 'Sapiens',           autor: 'Y. N. Harari',     precio: 2200, qty: 1, cover: 'cover-8' },
+      ],
+      progress: ['done','done','done','done','done']
+    },
+    {
+      id: 'LD-2025-C1E5',
+      fecha: '2 mayo 2025',
+      estado: 'entregado',
+      total: 3200,
+      entrega: 'Retiro en local',
+      items: [
+        { titulo: 'Diseño de Algoritmos', autor: 'S. Dasgupta', precio: 3200, qty: 1, cover: 'cover-4' },
+      ],
+      progress: ['done','done','done','done','done']
+    },
+    {
+      id: 'LD-2025-D9A1',
+      fecha: '18 abril 2025',
+      estado: 'entregado',
+      total: 7600,
+      entrega: 'Envío a domicilio',
+      items: [
+        { titulo: 'Bases de Datos',      autor: 'Ramakrishnan',  precio: 3800, qty: 1, cover: 'cover-6' },
+        { titulo: 'Cien Años de Soledad',autor: 'García Márquez',precio: 1900, qty: 2, cover: 'cover-3' },
+      ],
+      progress: ['done','done','done','done','done']
+    },
+    {
+      id: 'LD-2025-E6B3',
+      fecha: '5 marzo 2025',
+      estado: 'entregado',
+      total: 4500,
+      entrega: 'Retiro en local',
+      items: [
+        { titulo: 'El Arte de la Programación', autor: 'Donald Knuth', precio: 4500, qty: 1, cover: 'cover-1' },
+      ],
+      progress: ['done','done','done','done','done']
+    },
+    {
+      id: 'LD-2025-F2D7',
+      fecha: '20 enero 2025',
+      estado: 'entregado',
+      total: 3400,
+      entrega: 'Envío a domicilio',
+      items: [
+        { titulo: 'El Principito', autor: 'Antoine de S-E',  precio: 1200, qty: 1, cover: 'cover-5' },
+        { titulo: 'Sapiens',       autor: 'Y. N. Harari',    precio: 2200, qty: 1, cover: 'cover-8' },
+      ],
+      progress: ['done','done','done','done','done']
+    },
+  ];
+
+  const statusLabels = {
+    pendiente:  'Pendiente',
+    preparando: 'Preparando',
+    enviado:    'Enviado',
+    entregado:  'Entregado',
+    cancelado:  'Cancelado',
+  };
+  const progressLabels = ['Confirmado','Preparando','Enviado','En camino','Entregado'];
+
+  let currentFilter = 'todos';
+
+  /* ── Render pedidos ── */
+  function renderOrders(filter = 'todos') {
+    const filtered = filter === 'todos' ? pedidos : pedidos.filter(p => p.estado === filter);
+    document.getElementById('ordersCount').textContent = `${filtered.length} pedido${filtered.length !== 1 ? 's' : ''}`;
+    const container = document.getElementById('ordersList');
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">📦</div>
+          <h3>Sin pedidos en esta categoría</h3>
+          <p>No tenés pedidos con ese estado por el momento.</p>
+          <a href="index.html" class="btn-shop">Explorar catálogo</a>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(p => {
+      const progressHtml = p.progress.map((state, i) => `
+        <div class="progress-step ${state}">
+          <div class="ps-dot"></div>
+          <div class="ps-label">${progressLabels[i]}</div>
+        </div>
+      `).join('');
+
+      const itemsHtml = p.items.map(item => `
+        <div class="oci-item">
+          <div class="oci-cover ${item.cover}">${item.titulo}</div>
+          <div class="oci-info">
+            <div class="oci-title">${item.titulo}</div>
+            <div class="oci-meta">${item.autor} · x${item.qty}</div>
+          </div>
+          <div class="oci-price">$${(item.precio * item.qty).toLocaleString('es-AR')}</div>
+        </div>
+      `).join('');
+
+      const entregaIcon = p.entrega.includes('Retiro')
+        ? `<svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`
+        : `<svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z"/></svg>`;
+
+      return `
+        <div class="order-card">
+          <div class="order-card-head">
+            <div class="order-num">
+              Pedido <strong>${p.id}</strong>
+            </div>
+            <div class="order-head-right">
+              <span class="order-date">${p.fecha}</span>
+              <span class="order-total-label">$${p.total.toLocaleString('es-AR')}</span>
+              <span class="status-badge status-${p.estado}">${statusLabels[p.estado]}</span>
+            </div>
+          </div>
+
+          <div class="order-progress">
+            ${progressHtml}
+          </div>
+
+          <div class="order-card-items">
+            ${itemsHtml}
+          </div>
+
+          <div class="order-card-foot">
+            <div class="entrega-info">
+              ${entregaIcon}
+              ${p.entrega}
+            </div>
+            <button class="btn-detail" onclick="showToast('📋 Detalle del pedido ${p.id}')">
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+              Ver detalle
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  /* ── Filtrar ── */
+  function filterOrders(status, btn) {
+    currentFilter = status;
+    document.querySelectorAll('.filter-chips .chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderOrders(status);
+  }
+
+  /* ── Tabs ── */
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-link').forEach(b => b.classList.remove('active'));
+
+    document.getElementById(`panel-${tab}`).classList.add('active');
+
+    // Activar botones correspondientes
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      if ((b.getAttribute('onclick') || '').includes(`'${tab}'`)) b.classList.add('active');
+    });
+    document.querySelectorAll('.sidebar-link').forEach(b => {
+      if ((b.getAttribute('onclick') || '').includes(`'${tab}'`)) b.classList.add('active');
+    });
+  }
+
+  /* ── Toast ── */
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  /* ── Init ── */
+  renderOrders();
+</script>
+</body>
+</html>
