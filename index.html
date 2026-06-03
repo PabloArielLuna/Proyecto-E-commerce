@@ -858,7 +858,7 @@
       <ul>
         <li><a href="#" onclick="openLogin(); return false;">Iniciar sesión</a></li>
         <li><a href="#" onclick="openRegister(); return false;">Registrarse</a></li>
-        <li><a href="#">Mi perfil</a></li>
+        <li><a href="perfil.html">Mi perfil</a></li>
         <li><a href="#">Mis pedidos</a></li>
       </ul>
     </div>
@@ -906,7 +906,7 @@
       <svg viewBox="0 0 24 24" fill="var(--forest)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
       Descuento del 5% aplicado por estar logueado
     </div>
-    <button class="btn-checkout" onclick="showToast('🛒 Funcionalidad de pago próximamente!')">
+    <button class="btn-checkout" onclick="goToCheckout()">
       Finalizar Compra
     </button>
   </div>
@@ -994,8 +994,8 @@
   ];
 
   /* - Estado --- */
-  let cart      = [];
-  let loggedIn  = false;
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  let loggedIn = localStorage.getItem("loggedIn") === "true";
   let activeFilter = 'todos';
 
   /* - Render catálogo --- */
@@ -1043,11 +1043,16 @@
   function addToCart(id) {
     const prod = productos.find(p => p.id === id);
     const existing = cart.find(i => i.id === id);
-    if (existing) { existing.qty++; }
-    else { cart.push({ ...prod, qty: 1 }); }
+
+    if (existing) {
+        existing.qty++;
+    } else {
+        cart.push({ ...prod, qty: 1 });
+    }
+
     updateCart();
-    showToast(`📚 "${prod.titulo}" agregado al carrito`);
-  }
+    localStorage.setItem("cart", JSON.stringify(cart));
+}
 
   function removeFromCart(id) {
     cart = cart.filter(i => i.id !== id);
@@ -1068,6 +1073,7 @@
     const items    = document.getElementById('cartItems');
     const totalQty = cart.reduce((s, i) => s + i.qty, 0);
     badge.textContent = totalQty;
+    localStorage.setItem("cart", JSON.stringify(cart));
 
     /* Render items */
     const coverColors = ['cover-1','cover-2','cover-3','cover-4','cover-5','cover-6','cover-7','cover-8'];
@@ -1134,6 +1140,7 @@
     const pass  = document.getElementById('loginPass').value;
     if (!email || !pass) { showToast('⚠️ Completá todos los campos'); return; }
     loggedIn = true;
+    localStorage.setItem("loggedIn", "true");
     closeLogin();
     updateCart();
     showToast('✅ ¡Bienvenido! Descuento del 5% aplicado');
@@ -1149,6 +1156,7 @@
     if (pass !== pass2)  { showToast('⚠️ Las contraseñas no coinciden'); return; }
     if (pass.length < 8) { showToast('⚠️ La contraseña debe tener al menos 8 caracteres'); return; }
     loggedIn = true;
+    localStorage.setItem("loggedIn", "true");
     closeLogin();
     updateCart();
     showToast(`✅ ¡Cuenta creada! Bienvenido/a, ${nombre.split(' ')[0]}`);
@@ -1178,6 +1186,12 @@ function attachProductNavigation() {
       goToProduct(id);
     });
   });
+}
+/* va a checkout.html */
+  function goToCheckout() {
+    window.location.href =
+        "checkout.html?cart=" +
+        encodeURIComponent(JSON.stringify(cart));
 }
   /* - Init --- */
   renderCatalog();

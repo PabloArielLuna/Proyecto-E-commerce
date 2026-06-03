@@ -758,12 +758,21 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  /* ── Datos simulados del carrito (en producción vendrían de localStorage/sessionStorage) ── */
-  const mockCart = [
-    { id: 1, titulo: "El Arte de la Programación", autor: "Donald Knuth",    precio: 4500, cover: "cover-1", qty: 1 },
-    { id: 3, titulo: "Cien Años de Soledad",       autor: "García Márquez",  precio: 1900, cover: "cover-3", qty: 2 },
-    { id: 7, titulo: "Clean Code",                 autor: "Robert C. Martin",precio: 2600, cover: "cover-7", qty: 1 },
-  ];
+  // Obtener carrito guardado por index.html
+  
+  const params = new URLSearchParams(window.location.search);
+
+  let cart = [];
+
+  try {
+    cart = JSON.parse(
+        decodeURIComponent(params.get("cart") || "[]")
+    );
+  } catch {
+    cart = [];
+  }
+
+console.log(cart);
   const loggedIn = true; // Simula usuario logueado
   let entregaMode = 'envio';
   let promoApplied = false;
@@ -771,22 +780,36 @@
   /* ── Render resumen ── */
   function renderOrderSummary() {
     const container = document.getElementById('orderItems');
-    container.innerHTML = mockCart.map(item => `
+
+    if (!cart.length) {
+    container.innerHTML = `
+        <p style="text-align:center;color:#888">
+            El carrito está vacío
+        </p>
+    `;
+
+    updateTotals();
+    return;
+}
+
+    container.innerHTML = cart.map(item => `
       <div class="order-item">
-        <div class="order-item-cover ${item.cover}">${item.titulo}</div>
+        <div class="order-item-cover">${item.titulo}</div>
         <div class="order-item-info">
           <div class="order-item-title">${item.titulo}</div>
           <div class="order-item-qty">Cantidad: ${item.qty}</div>
         </div>
-        <div class="order-item-price">$${(item.precio * item.qty).toLocaleString('es-AR')}</div>
+        <div class="order-item-price">
+          $${(item.precio * item.qty).toLocaleString('es-AR')}
+        </div>
       </div>
     `).join('');
 
     updateTotals();
-  }
+}
 
   function updateTotals() {
-    const subtotal   = mockCart.reduce((s, i) => s + i.precio * i.qty, 0);
+    const subtotal   = cart.reduce((s, i) => s + i.precio * i.qty, 0);
     const descuento  = loggedIn ? subtotal * 0.05 : 0;
     const envio      = entregaMode === 'local' ? 0 : (subtotal > 5000 ? 0 : 850);
     const total      = subtotal - descuento + envio;
