@@ -1,0 +1,91 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// MariaDB usa el conector de mysql en Prisma
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  idUsuario    Int       @id @default(autoincrement())
+  nombre       String
+  email        String    @unique
+  contrasena   String
+  estaLogueado Boolean   @default(false)
+  carritos     Carrito?
+  pedidos      Pedido[]
+}
+
+model Categoria {
+  idCategoria Int     @id @default(autoincrement())
+  nombre      String
+  libros      Libro[]
+}
+
+model Libro {
+  idLibro     Int             @id @default(autoincrement())
+  titulo      String
+  sinopsis    String?
+  precio      Float
+  stock       Int
+  isbn        String?
+  tipo        String          // "Libro", "Curso", "Digital"
+  idCategoria Int
+  categoria   Categoria       @relation(fields: [idCategoria], references: [idCategoria])
+  itemsCarrito ItemCarrito[]
+  detalles     DetallePedido[]
+}
+
+model Carrito {
+  idCarrito  Int           @id @default(autoincrement())
+  subtotal   Float         @default(0)
+  descuento  Float         @default(0)
+  total      Float         @default(0)
+  idUsuario  Int           @unique
+  usuario    Usuario       @relation(fields: [idUsuario], references: [idUsuario])
+  items      ItemCarrito[]
+}
+
+model ItemCarrito {
+  idItem         Int     @id @default(autoincrement())
+  cantidad       Int
+  precioUnitario Float
+  idCarrito      Int
+  idLibro        Int
+  carrito        Carrito @relation(fields: [idCarrito], references: [idCarrito])
+  libro          Libro   @relation(fields: [idLibro], references: [idLibro])
+}
+
+model Pedido {
+  idPedido   Int             @id @default(autoincrement())
+  fecha      DateTime        @default(now())
+  estado     String
+  total      Float
+  idUsuario  Int
+  usuario    Usuario         @relation(fields: [idUsuario], references: [idUsuario])
+  detalles   DetallePedido[]
+  pago       Pago?
+}
+
+model DetallePedido {
+  idDetalle      Int    @id @default(autoincrement())
+  cantidad       Int
+  precioUnitario Float
+  idPedido       Int
+  idLibro        Int
+  pedido         Pedido @relation(fields: [idPedido], references: [idPedido])
+  libro          Libro  @relation(fields: [idLibro], references: [idLibro])
+}
+
+model Pago {
+  idPago   Int      @id @default(autoincrement())
+  metodo   String
+  estado   String
+  fecha    DateTime @default(now())
+  idPedido Int      @unique
+  pedido   Pedido   @relation(fields: [idPedido], references: [idPedido])
+}
