@@ -858,7 +858,7 @@
       <ul>
         <li><a href="#" onclick="openLogin(); return false;">Iniciar sesión</a></li>
         <li><a href="#" onclick="openRegister(); return false;">Registrarse</a></li>
-        <li><a href="perfil.html">Mi perfil</a></li>
+        <li><a href="#" onclick="goToProfile(); return false;">Mi perfil</a></li>
         <li><a href="#">Mis pedidos</a></li>
       </ul>
     </div>
@@ -981,6 +981,29 @@
 
 <!-- JAVASCRIPT --------------------->
 <script>
+
+  // ---- Mantiene el login al volver de perfil ----------
+  (function () {
+  function setName() {
+    const name = localStorage.getItem("userName");
+    const el = document.getElementById("userNameDisplay");
+
+    if (!el) {
+      console.log("ERROR: userNameDisplay not found");
+      return;
+    }
+
+    el.textContent = name || "Guest";
+    console.log("USERNAME LOADED:", name);
+  }
+
+  setName();
+
+  window.addEventListener("pageshow", setName);
+
+  // --------- Actualiza el UI en base a lo anterior ---------
+  
+})();
   /* - Datos de productos --- */
   const productos = [
     { id: 1, titulo: "El Arte de la Programación", autor: "Donald Knuth",    precio: 4500, tipo: "Libro",   categoria: "Tecnología",  cover: "cover-1" },
@@ -1136,15 +1159,22 @@
 
   /* - Auth simulada --- */
   function handleLogin() {
+    console.log("HANDLE LOGIN RUNNING");
     const email = document.getElementById('loginEmail').value.trim();
     const pass  = document.getElementById('loginPass').value;
     if (!email || !pass) { showToast('⚠️ Completá todos los campos'); return; }
     loggedIn = true;
     localStorage.setItem("loggedIn", "true");
+    localStorage.setItem("userEmail", email);
+    localStorage.setItem("userName", email.split('@')[0]);
+    console.log("saved userName =", localStorage.getItem("userName"));
+    console.log("saved userEmail =", localStorage.getItem("userEmail"));
+
     closeLogin();
     updateCart();
     showToast('✅ ¡Bienvenido! Descuento del 5% aplicado');
     document.querySelector('.btn-nav-ghost').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg> ${email.split('@')[0]}`;
+    updateLoginButton()
   }
 
   function handleRegister() {
@@ -1157,10 +1187,13 @@
     if (pass.length < 8) { showToast('⚠️ La contraseña debe tener al menos 8 caracteres'); return; }
     loggedIn = true;
     localStorage.setItem("loggedIn", "true");
+    localStorage.setItem("userName", nombre);
+    localStorage.setItem("userEmail", email);
     closeLogin();
     updateCart();
     showToast(`✅ ¡Cuenta creada! Bienvenido/a, ${nombre.split(' ')[0]}`);
     document.querySelector('.btn-nav-ghost').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg> ${nombre.split(' ')[0]}`;
+    updateLoginButton()
   }
 
   /* - Toast --- */
@@ -1193,10 +1226,55 @@ function attachProductNavigation() {
         "checkout.html?cart=" +
         encodeURIComponent(JSON.stringify(cart));
 }
+function goToProfile() {
+    const name = localStorage.getItem("userName");
+    const email = localStorage.getItem("userEmail");
+
+    window.location.href =
+        `perfil.html?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+}
+function updateUsername() {
+  const name = localStorage.getItem("userName");
+  const el = document.getElementById("userNameDisplay");
+
+  if (el) {
+    el.textContent = name || "Guest";
+  }
+}
+//window.addEventListener("DOMContentLoaded", updateUsername);
+//window.addEventListener("pageshow", updateUsername);
+function updateLoginButton() {
+  const name = localStorage.getItem("userName");
+  const btn = document.querySelector(".btn-nav-ghost");
+
+  if (!btn) return;
+
+  if (name) {
+    btn.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+      </svg>
+      ${name}
+    `;
+  } else {
+    btn.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+      </svg>
+      Ingresar
+    `;
+  }
+}
   /* - Init --- */
+function init() {
   renderCatalog();
   attachProductNavigation();
   updateCart();
+  updateUsername();
+  updateLoginButton() 
+}
+init();
+window.addEventListener("pageshow", updateUsername);
 </script>
 </body>
 </html>

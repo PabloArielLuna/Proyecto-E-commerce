@@ -524,9 +524,14 @@
       <div class="avatar-wrap" id="avatarInitials">JG</div>
       <div class="profile-meta">
         <p class="eyebrow">Mi cuenta</p>
-        <h1 id="heroName">Juan García</h1>
+        <h1 id="heroName"><span id="profileName"></span></h1>
         <p class="sub">
-          <span><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg> juan@email.com</span>
+          <span id="heroEmail">
+            <svg viewBox="0 0 24 24">
+              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+            <span id="heroEmailText"></span>
+</span>
           <span><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg> Cliente desde enero 2025</span>
         </p>
       </div>
@@ -569,8 +574,8 @@
   <aside class="profile-sidebar">
     <div class="sidebar-box">
       <div class="sidebar-user">
-        <span class="name">Juan García</span>
-        <span class="email">juan@email.com</span>
+        <span class="name"><span id="profileName"></span></span>
+        <span class="email"><span id="heroEmail"></span>
         <span class="badge">✓ Cuenta verificada</span>
       </div>
     </div>
@@ -630,11 +635,11 @@
       <div class="info-grid" style="margin-bottom:1.5rem">
         <div class="info-field">
           <div class="lbl">Nombre completo</div>
-          <div class="val">Juan García</div>
+          <div class="val"><span id="profileName"></span></div>
         </div>
         <div class="info-field">
           <div class="lbl">Email</div>
-          <div class="val">juan@email.com</div>
+          <div class="val email"></div>
         </div>
         <div class="info-field">
           <div class="lbl">Teléfono</div>
@@ -654,7 +659,7 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Nombre</label>
-              <input class="form-input" type="text" value="Juan" />
+              <input id="editName" class="form-input" type="text" value="" />
             </div>
             <div class="form-group">
               <label class="form-label">Apellido</label>
@@ -664,7 +669,7 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Email</label>
-              <input class="form-input" type="email" value="juan@email.com" />
+              <input id="editEmail" class="form-input" type="email" value="" />
             </div>
             <div class="form-group">
               <label class="form-label">Teléfono</label>
@@ -921,6 +926,56 @@
 
   /* ── Init ── */
   renderOrders();
+</script>
+<script>
+const params = new URLSearchParams(window.location.search);
+
+const name = params.get("name");
+const email = params.get("email");
+const editName = document.getElementById("editName");
+if (editName) editName.value = name;
+
+if (name) {
+    const heroName = document.getElementById("heroName");
+    if (heroName) heroName.textContent = name;
+
+    document.querySelectorAll(".name").forEach(el => {
+        el.textContent = name;
+    });
+
+    const profileName = document.getElementById("profileName");
+    if (profileName) profileName.textContent = name;
+
+    const avatar = document.getElementById("avatarInitials");
+    if (avatar) {
+        avatar.textContent = name
+            .split(" ")
+            .map(w => w[0])
+            .join("")
+            .substring(0, 2)
+            .toUpperCase();
+    }
+}
+document.querySelector(".btn-volver").addEventListener("click", function () {
+  const nameInput = document.getElementById("editName").value;
+  localStorage.setItem("userName", nameInput);
+});
+if (email) {
+    document.querySelectorAll(".email").forEach(el => {
+        el.textContent = email;
+    });
+
+    const heroEmailText = document.getElementById("heroEmailText");
+    if (heroEmailText) heroEmailText.textContent = email;
+
+    const profileEmail = document.getElementById("profileEmail");
+    if (profileEmail) profileEmail.textContent = email;
+
+    const editEmail = document.getElementById("editEmail");
+    if (editEmail) editEmail.value = email;
+    
+  
+}
 </script>
 </body>
 </html>
