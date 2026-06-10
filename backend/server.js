@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 app.use(cors()); // Permite que el frontend se conecte sin errores de seguridad
 app.use(express.json()); // Permite recibir datos en formato JSON
 
-// Endpoint 1: Healthcheck (Para mostrarle al profe que el server responde)
+// Endpoint 1: Healthcheck (Para mostrar que el server responde)
 app.get('/', (req, res) => {
   res.send('✅ API de Librería Digital funcionando correctamente.');
 });
