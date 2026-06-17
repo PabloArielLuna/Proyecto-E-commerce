@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql" // MariaDB usa el conector "mysql" de Prisma
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Usuario
+// -1 idUsuario, posee 1 Carrito, realiza 0..* Pedidos
+// ============================================
+model Usuario {
+  idUsuario  Int      @id @default(autoincrement())
+  nombre     String   @db.VarChar(150)
+  email      String   @unique @db.VarChar(150)
+  contrasena String   @db.VarChar(255)
+  rol        String   @default("cliente") @db.VarChar(30)
+  creadoEn   DateTime @default(now()) @map("creado_en")
+
+  // Usuario "posee" 1 Carrito
+  carrito Carrito?
+
+  // Usuario "realiza" 0..* Pedidos
+  pedidos Pedido[]
+
+  @@map("usuarios")
+}
+
+// ============================================
+// Carrito
+// -idCarrito, subtotal, total | "contiene" 0..* ItemCarrito
+// ============================================
+model Carrito {
+  idCarrito Int      @id @default(autoincrement())
+  subtotal  Float    @default(0)
+  total     Float    @default(0)
+  creadoEn  DateTime @default(now()) @map("creado_en")
+
+  // Relación 1 a 1 con Usuario
+  idUsuario Int     @unique @map("id_usuario")
+  usuario   Usuario @relation(fields: [idUsuario], references: [idUsuario], onDelete: Cascade)
+
+  // Carrito "contiene" 0..* ItemCarrito
+  items ItemCarrito[]
+
+  @@map("carritos")
+}
+
+// ============================================
+// ItemCarrito
+// -cantidad, precioUnitario | "referencia" 1 Libro
+// ============================================
+model ItemCarrito {
+  idItemCarrito  Int   @id @default(autoincrement())
+  cantidad       Int
+  precioUnitario Float @map("precio_unitario")
+
+  idCarrito Int     @map("id_carrito")
+  carrito   Carrito @relation(fields: [idCarrito], references: [idCarrito], onDelete: Cascade)
+
+  // ItemCarrito "referencia" 1 Libro
+  idLibro Int   @map("id_libro")
+  libro   Libro @relation(fields: [idLibro], references: [idLibro])
+
+  @@map("items_carrito")
+}
+
+// ============================================
+// Pedido
+// -idPedido, fecha, estado, total | "compuesto por" 1..* DetallePedido | "se abona con" 1 Pago
+// ============================================
+model Pedido {
+  idPedido Int      @id @default(autoincrement())
+  fecha    DateTime @default(now())
+  estado   String   @default("pendiente") @db.VarChar(30)
+  total    Float
+
+  // Pedido "realizado por" Usuario
+  idUsuario Int     @map("id_usuario")
+  usuario   Usuario @relation(fields: [idUsuario], references: [idUsuario])
+
+  // Pedido "compuesto por" 1..* DetallePedido (composición)
+  detalles DetallePedido[]
+
+  // Pedido "se abona con" 1 Pago
+  pago Pago?
+
+  @@map("pedidos")
+}
+
+// ============================================
+// DetallePedido
+// -cantidad, precioUnitario | "incluye" 1 Libro
+// ============================================
+model DetallePedido {
+  idDetallePedido Int   @id @default(autoincrement())
+  cantidad        Int
+  precioUnitario  Float @map("precio_unitario")
+
+  idPedido Int    @map("id_pedido")
+  pedido   Pedido @relation(fields: [idPedido], references: [idPedido], onDelete: Cascade)
+
+  // DetallePedido "incluye" 1 Libro
+  idLibro Int   @map("id_libro")
+  libro   Libro @relation(fields: [idLibro], references: [idLibro])
+
+  @@map("detalles_pedido")
+}
+
+// ============================================
+// Pago
+// -idPago, metodo, estado, fecha | 1 a 1 con Pedido
+// ============================================
+model Pago {
+  idPago  Int      @id @default(autoincrement())
+  metodo  String   @db.VarChar(50)
+  estado  String   @default("pendiente") @db.VarChar(30)
+  fecha   DateTime @default(now())
+
+  idPedido Int    @unique @map("id_pedido")
+  pedido   Pedido @relation(fields: [idPedido], references: [idPedido], onDelete: Cascade)
+
+  @@map("pagos")
+}
+
+// ============================================
+// Libro
+// -idLibro, titulo, sinopsis, precio, stock, isbn | "pertenece" 1 Categoria
+// ============================================
+model Libro {
+  idLibro  Int     @id @default(autoincrement())
+  titulo   String  @db.VarChar(255)
+  sinopsis String? @db.Text
+  precio   Float
+  stock    Int     @default(0)
+  isbn     String  @unique @db.VarChar(20)
+
+  // Libro "pertenece" 1 Categoria
+  idCategoria Int      @map("id_categoria")
+  categoria   Categoria @relation(fields: [idCategoria], references: [idCategoria])
+
+  itemsCarrito   ItemCarrito[]
+  detallesPedido DetallePedido[]
+
+  @@map("libros")
+}
+
+// ============================================
+// Categoria
+// -idCategoria, nombre
+// ============================================
+model Categoria {
+  idCategoria Int    @id @default(autoincrement())
+  nombre      String @unique @db.VarChar(100)
+
+  libros Libro[]
+
+  @@map("categorias")
+}
