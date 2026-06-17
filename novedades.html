@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Librería Digital</title>
+  <title>Novedades Editoriales · Librería Digital</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 
@@ -382,6 +382,13 @@
     }
     .btn-agregar:hover { background: var(--forest2); }
     .btn-agregar svg { width: 12px; height: 12px; }
+    .btn-disabled {
+      background: var(--border);
+      color: var(--muted);
+      cursor: not-allowed;
+      font-style: italic;
+    }
+    .btn-disabled:hover { background: var(--border); }
 
     /* - CART PANEL ------------------------ */
     .cart-panel {
@@ -784,11 +791,11 @@
   </a>
 
   <ul class="nav-links">
-    <li><a href="#catalogo" onclick="filterBooks('todos', this)">Catálogo</a></li>
-    <li><a href="#" onclick="filterBooks('Libro', this)">Libros</a></li>
-    <li><a href="#" onclick="filterBooks('Curso', this)">Cursos</a></li>
-    <li><a href="#" onclick="filterBooks('Digital', this)">Digitales</a></li>
-    <li><a href="novedades.html">Novedades</a></li>
+    <li><a href="index.html#catalogo">Catálogo</a></li>
+    <li><a href="index.html?filtro=Libro#catalogo">Libros</a></li>
+    <li><a href="index.html?filtro=Curso#catalogo">Cursos</a></li>
+    <li><a href="index.html?filtro=Digital#catalogo">Digitales</a></li>
+    <li><a href="novedades.html" style="background: rgba(255,255,255,.1); color: var(--gold2);">Novedades</a></li>
   </ul>
 
   <div class="nav-actions">
@@ -807,25 +814,18 @@
 <!-- HERO ------------------------------->
 <section class="hero">
   <div class="hero-content">
-    <p class="hero-eyebrow">Bienvenido a la tienda</p>
-    <h1>Tu próxima gran <em>lectura</em> te está esperando</h1>
-    <p>Miles de títulos, cursos y productos digitales. Registrate y obtené un descuento exclusivo del 5% en cada compra.</p>
-    <button class="btn-hero" onclick="document.getElementById('catalogo').scrollIntoView({behavior:'smooth'})">Ver catálogo</button>
+    <p class="hero-eyebrow">Recién llegado a la tienda</p>
+    <h1>Novedades <em>editoriales</em></h1>
+    <p>Los últimos lanzamientos en libros, cursos y contenidos digitales. Descubrí lo nuevo antes que nadie.</p>
+    <button class="btn-hero" onclick="document.getElementById('catalogo').scrollIntoView({behavior:'smooth'})">Ver novedades</button>
   </div>
 </section>
 
 <!-- CATÁLOGO ------------------------------>
 <section id="catalogo">
   <div class="section-header">
-    <h2>Catálogo de Productos<span id="filterLabel"></span></h2>
+    <h2>Novedades Editoriales</h2>
     <span class="count" id="countLabel">8 productos</span>
-  </div>
-
-  <div class="filter-bar">
-    <button class="filter-btn active" onclick="filterBooks('todos', this)">Todos</button>
-    <button class="filter-btn" onclick="filterBooks('Libro', this)">Libros</button>
-    <button class="filter-btn" onclick="filterBooks('Curso', this)">Cursos</button>
-    <button class="filter-btn" onclick="filterBooks('Digital', this)">Digitales</button>
   </div>
 
   <div class="catalog" id="catalogGrid">
@@ -984,16 +984,16 @@
   // --------- Actualiza el UI en base a lo anterior ---------
   
 })();
-  /* - Datos de productos --- */
+  /* - Datos de novedades --- */
   const productos = [
-    { id: 1, titulo: "El Arte de la Programación", autor: "Donald Knuth",    precio: 4500, tipo: "Libro",   categoria: "Tecnología",  cover: "cover-1" },
-    { id: 2, titulo: "Python para Todos",          autor: "Eric Matthes",    precio: 2800, tipo: "Curso",   categoria: "Tecnología",  cover: "cover-2" },
-    { id: 3, titulo: "Cien Años de Soledad",       autor: "García Márquez",  precio: 1900, tipo: "Libro",   categoria: "Literatura",  cover: "cover-3" },
-    { id: 4, titulo: "Diseño de Algoritmos",       autor: "S. Dasgupta",     precio: 3200, tipo: "Digital", categoria: "Tecnología",  cover: "cover-4" },
-    { id: 5, titulo: "El Principito",              autor: "Antoine de S-E",  precio: 1200, tipo: "Libro",   categoria: "Literatura",  cover: "cover-5" },
-    { id: 6, titulo: "Bases de Datos",             autor: "Ramakrishnan",    precio: 3800, tipo: "Curso",   categoria: "Tecnología",  cover: "cover-6" },
-    { id: 7, titulo: "Clean Code",                 autor: "Robert C. Martin",precio: 2600, tipo: "Digital", categoria: "Tecnología",  cover: "cover-7" },
-    { id: 8, titulo: "Sapiens",                    autor: "Yuval Noah Harari",precio: 2200, tipo: "Libro",  categoria: "Historia",    cover: "cover-8" },
+    { id: 101, titulo: "Atlas del Futuro",          autor: "Lucía Bermejo",     precio: 3900, tipo: "Novedad", categoria: "Tecnología",  cover: "cover-1" },
+    { id: 102, titulo: "IA para Creativos",         autor: "Martín Solé",       precio: 3100, tipo: "Novedad", categoria: "Tecnología",  cover: "cover-2" },
+    { id: 103, titulo: "El Jardín de las Horas",    autor: "Inés Calatrava",    precio: 2400, tipo: "Novedad", categoria: "Literatura",  cover: "cover-3" },
+    { id: 104, titulo: "Arquitecturas Limpias 2.0", autor: "Robert C. Martin",  precio: 3500, tipo: "Novedad", categoria: "Tecnología",  cover: "cover-4" },
+    { id: 105, titulo: "Voces del Sur",             autor: "Camila Otero",      precio: 2100, tipo: "Novedad", categoria: "Literatura",  cover: "cover-5" },
+    { id: 106, titulo: "Bases de Datos Distribuidas",autor: "Martin Kleppmann", precio: 4200, tipo: "Novedad", categoria: "Tecnología",  cover: "cover-6" },
+    { id: 107, titulo: "Microhistorias",            autor: "Pablo Reyes",       precio: 1800, tipo: "Novedad", categoria: "Historia",    cover: "cover-7" },
+    { id: 108, titulo: "Diseño Sustentable",        autor: "Valentina Ríos",    precio: 2700, tipo: "Novedad", categoria: "Diseño",      cover: "cover-8" },
   ];
 
   /* - Estado --- */
@@ -1002,12 +1002,11 @@
   let activeFilter = 'todos';
 
   /* - Render catálogo --- */
-  function renderCatalog(filter = 'todos') {
+  function renderCatalog() {
     const grid = document.getElementById('grid');
-    const filtered = filter === 'todos' ? productos : productos.filter(p => p.tipo === filter);
-    document.getElementById('countLabel').textContent = `${filtered.length} producto${filtered.length !== 1 ? 's' : ''}`;
+    document.getElementById('countLabel').textContent = `${productos.length} producto${productos.length !== 1 ? 's' : ''}`;
 
-    grid.innerHTML = filtered.map(p => `
+    grid.innerHTML = productos.map(p => `
       <article class="book-card" data-id="${p.id}" data-tipo="${p.tipo}">
         <div class="book-cover">
           <div class="book-cover-art ${p.cover}">
@@ -1024,40 +1023,13 @@
             <div class="book-precio">
               <span class="currency">$</span>${p.precio.toLocaleString('es-AR')}
             </div>
-            <button class="btn-agregar" onclick="event.stopPropagation(); addToCart(${p.id})">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-              Agregar
+            <button class="btn-agregar btn-disabled" disabled title="Disponible próximamente">
+              Próximamente
             </button>
           </div>
         </div>
       </article>
     `).join('');
-  }
-
-  const filterLabels = {
-    todos: '',
-    Libro: 'Libros',
-    Curso: 'Cursos',
-    Digital: 'Digitales',
-    Novedad: 'Novedades'
-  };
-
-  function filterBooks(tipo, btn) {
-    activeFilter = tipo;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    if (btn && btn.classList.contains('filter-btn')) {
-      btn.classList.add('active');
-    } else {
-      document.querySelectorAll('.filter-btn').forEach(b => {
-        if (b.textContent.trim() === (filterLabels[tipo] || 'Todos')) b.classList.add('active');
-      });
-    }
-
-    const label = document.getElementById('filterLabel');
-    label.textContent = filterLabels[tipo] ? ` - ${filterLabels[tipo]}` : '';
-
-    renderCatalog(tipo);
-    attachProductNavigation();
   }
 
   /* - Carrito --- */
@@ -1209,13 +1181,10 @@ function goToProduct(id) {
 }
 /* - INTERACTIVE ELEMENT -------------------- */
 function attachProductNavigation() {
+  /* En la página de Novedades los productos aún no tienen ficha propia,
+     por lo que no se navega al hacer click en la tarjeta. */
   document.querySelectorAll("#grid > *").forEach((el) => {
-    el.style.cursor = "pointer";
-
-    el.addEventListener("click", () => {
-      const id = el.dataset.id;
-      goToProduct(id);
-    });
+    el.style.cursor = "default";
   });
 }
 /* va a checkout.html */
@@ -1269,16 +1238,7 @@ function init() {
   attachProductNavigation();
   updateCart();
   updateUsername();
-  updateLoginButton();
-
-  const params = new URLSearchParams(window.location.search);
-  const filtro = params.get('filtro');
-  if (filtro && filterLabels.hasOwnProperty(filtro)) {
-    const map = { Libro: 1, Curso: 2, Digital: 3 };
-    const idx = map[filtro];
-    const btn = idx ? document.querySelectorAll('.filter-btn')[idx] : null;
-    filterBooks(filtro, btn);
-  }
+  updateLoginButton() 
 }
 init();
 window.addEventListener("pageshow", updateUsername);
