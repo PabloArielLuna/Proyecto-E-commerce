@@ -868,7 +868,7 @@ console.log(cart);
   }
 
   /* ── Validar y pagar ── */
-  function procesarPago() {
+  async function procesarPago() {
     const firstName = document.getElementById('firstName').value.trim();
     const email     = document.getElementById('email').value.trim();
     const cardNum   = document.getElementById('cardNumber').value.replace(/\s/g,'');
@@ -889,16 +889,55 @@ console.log(cart);
     if (cardExp.length < 7)   { showToast('⚠️ Fecha de vencimiento inválida'); return; }
     if (cardCvv.length < 3)   { showToast('⚠️ CVV incompleto'); return; }
 
-    // Simular proceso
     const btn = document.querySelector('.btn-pay');
     btn.textContent = 'Procesando…';
     btn.disabled = true;
 
-    setTimeout(() => {
-      const orderNum = '#' + Math.random().toString(36).substring(2,8).toUpperCase();
-      document.getElementById('successOrderNum').textContent = 'Pedido ' + orderNum;
-      document.getElementById('successOverlay').classList.add('show');
-    }, 1800);
+    // 1. Adaptamos el changuito del frontend al formato que pide tu backend
+    const itemsParaBackend = cart.map(item => ({
+      idLibro: item.id,
+      cantidad: item.qty
+    }));
+
+    // 2. Armamos el paquete de datos
+    const payload = {
+      items: itemsParaBackend,
+      idUsuario: 1, // Usamos el ID 1 que creaste en Prisma Studio
+      metodoPago: "Tarjeta"
+    };
+
+    try {
+      // 3. Enviamos los datos a TU CAJA REGISTRADORA (Backend)
+      const response = await fetch('http://localhost:3000/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // 4A. ¡El ticket se imprimió en la base de datos! Mostramos el éxito real.
+        document.getElementById('successOrderNum').textContent = 'Pedido #' + data.pedido.idPedido;
+        document.getElementById('successOverlay').classList.add('show');
+        
+        // Vaciamos el changuito para que no vuelva a comprar lo mismo por error
+        localStorage.removeItem("cart"); 
+      } else {
+        // 4B. La base de datos rebotó la compra (ej. por falta de stock)
+        showToast('⚠️ Error: ' + data.error);
+        btn.textContent = 'Confirmar y pagar';
+        btn.disabled = false;
+      }
+    } catch (error) {
+      // 4C. El backend está apagado o hay un error de red
+      showToast('⚠️ Error de conexión con el servidor. ¿Prendiste el backend?');
+      console.error(error);
+      btn.textContent = 'Confirmar y pagar';
+      btn.disabled = false;
+    }
   }
 
   /* ── Toast ── */
