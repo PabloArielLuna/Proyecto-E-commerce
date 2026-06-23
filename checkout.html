@@ -288,6 +288,86 @@
     }
     .card-type-icon.active { border-color: var(--forest); color: var(--forest2); background: #eef7f1; }
 
+    /* ── PAYMENT METHOD SELECTOR ── */
+    .pay-method-tabs {
+      display: flex; gap: .75rem;
+      margin-bottom: 1.5rem;
+    }
+    .pay-method-tab {
+      flex: 1;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      padding: .85rem 1rem;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex; flex-direction: column; align-items: center;
+      gap: .45rem; text-align: center;
+      background: var(--paper);
+    }
+    .pay-method-tab:hover { border-color: var(--forest); }
+    .pay-method-tab.selected {
+      border-color: var(--forest);
+      background: #eef7f1;
+    }
+    .pay-method-tab .tab-icon {
+      display: flex; align-items: center; justify-content: center;
+      height: 28px;
+    }
+    .pay-method-tab .tab-icon svg {
+      width: 26px; height: 26px;
+      fill: var(--muted);
+      transition: fill .2s;
+    }
+    .pay-method-tab.selected .tab-icon svg { fill: var(--forest); }
+    .pay-method-tab .tab-label {
+      font-family: var(--font-ui); font-size: .72rem; font-weight: 500;
+      letter-spacing: .06em; text-transform: uppercase;
+      color: var(--ink2); transition: color .2s;
+    }
+    .pay-method-tab.selected .tab-label { color: var(--forest2); }
+    .pay-method-tab .tab-sub {
+      font-family: var(--font-ui); font-size: .65rem;
+      color: var(--muted); line-height: 1.35;
+    }
+
+    /* Logo MP en SVG */
+    .mp-logo {
+      display: flex; align-items: center; gap: .4rem;
+      font-family: var(--font-ui); font-size: .88rem; font-weight: 700;
+      color: #009ee3; letter-spacing: -.5px;
+    }
+    .mp-logo .mp-icon {
+      width: 28px; height: 28px;
+      background: #009ee3;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mp-logo .mp-icon svg { width: 16px; height: 16px; fill: #fff; }
+
+    /* Info MP */
+    .mp-info-box {
+      background: #e8f7fd;
+      border: 1.5px solid #b3dff7;
+      border-radius: 4px;
+      padding: 1rem 1.1rem;
+      display: none;
+      gap: .75rem;
+      align-items: flex-start;
+    }
+    .mp-info-box.visible { display: flex; }
+    .mp-info-box svg { width: 22px; height: 22px; fill: #009ee3; flex-shrink: 0; margin-top: 1px; }
+    .mp-info-text {
+      font-family: var(--font-ui); font-size: .78rem;
+      color: #0a5a7a; line-height: 1.55;
+    }
+    .mp-info-text strong { display: block; font-weight: 600; margin-bottom: .2rem; color: #00739e; }
+
+    /* btn MP */
+    .btn-pay-mp {
+      background: #009ee3 !important;
+    }
+    .btn-pay-mp:hover { background: #007bbf !important; }
+
     /* ── SECURE BADGE ── */
     .secure-badge {
       display: flex; align-items: center; gap: .5rem;
@@ -626,6 +706,43 @@
       </div>
       <div class="section-body">
 
+        <!-- Selector de método de pago -->
+        <div class="pay-method-tabs">
+
+          <div class="pay-method-tab selected" id="tabTarjeta" onclick="selectPayMethod('tarjeta')">
+            <div class="tab-icon">
+              <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+            </div>
+            <span class="tab-label">Tarjeta</span>
+            <span class="tab-sub">Crédito o débito</span>
+          </div>
+
+          <div class="pay-method-tab" id="tabMP" onclick="selectPayMethod('mp')">
+            <div class="tab-icon">
+              <div class="mp-logo">
+                <div class="mp-icon">
+                  <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+                </div>
+              </div>
+            </div>
+            <span class="tab-label">Mercado Pago</span>
+            <span class="tab-sub">Seguro y rápido</span>
+          </div>
+
+        </div>
+
+        <!-- INFO MERCADO PAGO -->
+        <div class="mp-info-box" id="mpInfoBox">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div class="mp-info-text">
+            <strong>Serás redirigido a Mercado Pago</strong>
+            Al confirmar, te llevaremos a la pantalla segura de Mercado Pago para completar tu pago. Podés usar saldo, tarjetas, o efectivo. Tu pedido se confirmará automáticamente al finalizar.
+          </div>
+        </div>
+
+        <!-- FORMULARIO TARJETA (se oculta con MP) -->
+        <div id="cardFormSection">
+
         <!-- Vista previa tarjeta -->
         <div class="card-preview">
           <div class="card-chip"></div>
@@ -688,6 +805,8 @@
           Tus datos están protegidos con encriptación SSL de 256 bits
         </div>
 
+        </div><!-- /cardFormSection -->
+
       </div>
     </div>
 
@@ -725,9 +844,9 @@
           <button class="btn-promo" onclick="applyPromo()">Aplicar</button>
         </div>
 
-        <button class="btn-pay" onclick="procesarPago()">
-          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
-          Confirmar y pagar
+        <button class="btn-pay" id="btnPagar" onclick="procesarPago()">
+          <svg id="btnPayIcon" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+          <span id="btnPayText">Confirmar y pagar</span>
         </button>
       </div>
     </div>
@@ -867,14 +986,36 @@ console.log(cart);
     }
   }
 
+  /* ── Método de pago ── */
+  let payMethod = 'tarjeta'; // 'tarjeta' | 'mp'
+
+  function selectPayMethod(method) {
+    payMethod = method;
+
+    document.getElementById('tabTarjeta').classList.toggle('selected', method === 'tarjeta');
+    document.getElementById('tabMP').classList.toggle('selected', method === 'mp');
+
+    document.getElementById('cardFormSection').style.display = method === 'tarjeta' ? 'block' : 'none';
+    document.getElementById('mpInfoBox').classList.toggle('visible', method === 'mp');
+
+    const btn = document.getElementById('btnPagar');
+    const btnText = document.getElementById('btnPayText');
+
+    if (method === 'mp') {
+      btn.classList.add('btn-pay-mp');
+      document.getElementById('btnPayIcon').innerHTML = '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>';
+      btnText.textContent = 'Pagar con Mercado Pago';
+    } else {
+      btn.classList.remove('btn-pay-mp');
+      document.getElementById('btnPayIcon').innerHTML = '<path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>';
+      btnText.textContent = 'Confirmar y pagar';
+    }
+  }
+
   /* ── Validar y pagar ── */
   async function procesarPago() {
     const firstName = document.getElementById('firstName').value.trim();
     const email     = document.getElementById('email').value.trim();
-    const cardNum   = document.getElementById('cardNumber').value.replace(/\s/g,'');
-    const cardName  = document.getElementById('cardName').value.trim();
-    const cardExp   = document.getElementById('cardExp').value.trim();
-    const cardCvv   = document.getElementById('cardCvv').value.trim();
 
     if (!firstName || !email) { showToast('⚠️ Completá tus datos de contacto'); return; }
 
@@ -884,58 +1025,94 @@ console.log(cart);
       if (!addr || !city) { showToast('⚠️ Completá la dirección de envío'); return; }
     }
 
-    if (cardNum.length < 16) { showToast('⚠️ Número de tarjeta incompleto'); return; }
-    if (!cardName)            { showToast('⚠️ Ingresá el nombre del titular'); return; }
-    if (cardExp.length < 7)   { showToast('⚠️ Fecha de vencimiento inválida'); return; }
-    if (cardCvv.length < 3)   { showToast('⚠️ CVV incompleto'); return; }
+    // Validaciones de tarjeta solo si eligió ese método
+    if (payMethod === 'tarjeta') {
+      const cardNum  = document.getElementById('cardNumber').value.replace(/\s/g,'');
+      const cardName = document.getElementById('cardName').value.trim();
+      const cardExp  = document.getElementById('cardExp').value.trim();
+      const cardCvv  = document.getElementById('cardCvv').value.trim();
 
-    const btn = document.querySelector('.btn-pay');
-    btn.textContent = 'Procesando…';
+      if (cardNum.length < 16) { showToast('⚠️ Número de tarjeta incompleto'); return; }
+      if (!cardName)            { showToast('⚠️ Ingresá el nombre del titular'); return; }
+      if (cardExp.length < 7)   { showToast('⚠️ Fecha de vencimiento inválida'); return; }
+      if (cardCvv.length < 3)   { showToast('⚠️ CVV incompleto'); return; }
+    }
+
+    const btn     = document.getElementById('btnPagar');
+    const btnText = document.getElementById('btnPayText');
+    btnText.textContent = 'Procesando…';
     btn.disabled = true;
 
-    // 1. Adaptamos el changuito del frontend al formato que pide tu backend
+    // Datos comunes para el backend
     const itemsParaBackend = cart.map(item => ({
       idLibro: item.id,
       cantidad: item.qty
     }));
 
-    // 2. Armamos el paquete de datos
+    // ── FLUJO MERCADO PAGO ──────────────────────────────────────────
+    if (payMethod === 'mp') {
+      const payload = {
+        items: itemsParaBackend,
+        idUsuario: 1,
+        metodoPago: 'MercadoPago',
+        comprador: { nombre: firstName, email }
+      };
+
+      try {
+        const response = await fetch('http://localhost:3000/api/pagar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.url) {
+          // ✅ Redirigir a la pantalla segura de Mercado Pago
+          window.location.href = data.url;
+        } else {
+          showToast('⚠️ Error al iniciar pago: ' + (data.error || 'Respuesta inesperada'));
+          btnText.textContent = 'Pagar con Mercado Pago';
+          btn.disabled = false;
+        }
+      } catch (error) {
+        showToast('⚠️ Error de conexión con el servidor. ¿Prendiste el backend?');
+        console.error(error);
+        btnText.textContent = 'Pagar con Mercado Pago';
+        btn.disabled = false;
+      }
+      return; // ← salimos, el flujo MP no sigue abajo
+    }
+
+    // ── FLUJO TARJETA (existente) ───────────────────────────────────
     const payload = {
       items: itemsParaBackend,
-      idUsuario: 1, // Usamos el ID 1 que creaste en Prisma Studio
-      metodoPago: "Tarjeta"
+      idUsuario: 1,
+      metodoPago: 'Tarjeta'
     };
 
     try {
-      // 3. Enviamos los datos a TU CAJA REGISTRADORA (Backend)
       const response = await fetch('http://localhost:3000/api/checkout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // 4A. ¡El ticket se imprimió en la base de datos! Mostramos el éxito real.
         document.getElementById('successOrderNum').textContent = 'Pedido #' + data.pedido.idPedido;
         document.getElementById('successOverlay').classList.add('show');
-        
-        // Vaciamos el changuito para que no vuelva a comprar lo mismo por error
-        localStorage.removeItem("cart"); 
+        localStorage.removeItem('cart');
       } else {
-        // 4B. La base de datos rebotó la compra (ej. por falta de stock)
         showToast('⚠️ Error: ' + data.error);
-        btn.textContent = 'Confirmar y pagar';
+        btnText.textContent = 'Confirmar y pagar';
         btn.disabled = false;
       }
     } catch (error) {
-      // 4C. El backend está apagado o hay un error de red
       showToast('⚠️ Error de conexión con el servidor. ¿Prendiste el backend?');
       console.error(error);
-      btn.textContent = 'Confirmar y pagar';
+      btnText.textContent = 'Confirmar y pagar';
       btn.disabled = false;
     }
   }
