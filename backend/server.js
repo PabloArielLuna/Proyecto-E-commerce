@@ -228,7 +228,7 @@ app.post('/api/chat', async (req, res) => {
       },
       body: JSON.stringify({
         // Usamos la versión instantánea de Llama 3.1 que está activa y vuela
-        model: "llama-3.1-8b-instant", 
+        model: "llama-3.1-8b-instant",
         messages: [
           { role: "system", content: contextoSistema },
           { role: "user", content: mensaje }
