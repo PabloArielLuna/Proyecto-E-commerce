@@ -229,5 +229,3 @@ if (require.main === module) {
     console.log("🚀 Servidor iniciado y listo para operar.");
   });
 }
-
-// Parche para forzar a Git a leer el archivo
