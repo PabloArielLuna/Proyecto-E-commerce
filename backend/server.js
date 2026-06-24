@@ -3,19 +3,19 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
-
 const { MercadoPagoConfig, Preference } = require('mercadopago');
-// Configuramos MP con la clave de prueba de mi .env
+
+// Configuramos MP con la clave de prueba de tu .env
 const mpClient = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
 const app = express();
 const prisma = new PrismaClient();
 
 // Middlewares
-app.use(cors()); // Permite que el frontend se conecte sin errores de seguridad
-app.use(express.json()); // Permite recibir datos en formato JSON
+app.use(cors()); 
+app.use(express.json()); 
 
-// Endpoint 1: Healthcheck (Para mostrar que el server responde)
+// Endpoint 1: Healthcheck 
 app.get('/', (req, res) => {
   res.send('✅ API de Librería Digital funcionando correctamente.');
 });
@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 app.get('/api/libros', async (req, res) => {
   try {
     const libros = await prisma.libro.findMany({
-      include: { categoria: true } // Trae el libro y el nombre de su categoría
+      include: { categoria: true } 
     });
     res.json(libros);
   } catch (error) {
@@ -32,12 +32,11 @@ app.get('/api/libros', async (req, res) => {
   }
 });
 
-// Endpoint 3: Login (Borrador simulado para la entrega)
+// Endpoint 3: Login 
 app.post('/api/login', async (req, res) => {
   const { email, contrasena } = req.body;
   
   if(email && contrasena) {
-    // Acá en el futuro buscamos al usuario en la BD y validamos el hash de la contraseña
     res.json({ 
       mensaje: "Login exitoso", 
       usuario: { email: email, rol: "Cliente" } 
@@ -47,11 +46,8 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
-
-// Endpoint 4: El Checkout (La caja registradora)
+// Endpoint 4: El Checkout (La caja registradora interna)
 app.post('/api/checkout', async (req, res) => {
-  // El frontend nos manda los items del carrito, el ID del cliente y cómo paga
   const { items, idUsuario, metodoPago } = req.body;
 
   try {
@@ -60,21 +56,15 @@ app.post('/api/checkout', async (req, res) => {
     let subtotal = 0;
     const detalles = [];
 
-    // 1. "Pasar los productos por el escáner" (Buscar precios y stock real en la BD)
+    // 1. Escaneamos productos
     for (const item of items) {
       const libro = await prisma.libro.findUnique({ where: { idLibro: item.idLibro } });
       
-      if (!libro) {
-        return res.status(400).json({ error: `El producto ID ${item.idLibro} no existe.` });
-      }
-      if (libro.stock < item.cantidad) {
-        return res.status(400).json({ error: `No hay stock suficiente para ${libro.titulo}.` });
-      }
+      if (!libro) return res.status(400).json({ error: `El producto ID ${item.idLibro} no existe.` });
+      if (libro.stock < item.cantidad) return res.status(400).json({ error: `No hay stock suficiente para ${libro.titulo}.` });
 
-      // Sumamos al subtotal usando el precio real que dice el sistema
       subtotal += libro.precio * item.cantidad;
-
-      // Preparamos los renglones del ticket
+      
       detalles.push({
         idLibro: libro.idLibro,
         cantidad: item.cantidad,
@@ -82,36 +72,25 @@ app.post('/api/checkout', async (req, res) => {
       });
     }
 
-    // 2. Aplicar descuento (Si es un cliente registrado, le hacemos el 5% off)
-    let descuento = 0;
-    if (idUsuario) {
-      descuento = subtotal * 0.05;
-    }
+    // 2. Aplicar descuento 
+    let descuento = idUsuario ? (subtotal * 0.05) : 0;
     const totalFinal = subtotal - descuento;
 
-    // 3. Emitir el ticket y cobrar (Magia de Prisma: crea el Pedido, los Detalles y el Pago al mismo tiempo)
+    // 3. Emitir el ticket
     const nuevoPedido = await prisma.pedido.create({
       data: {
-        idUsuario: idUsuario || 1, // Si no mandan ID, se lo asignamos al usuario genérico 1
+        idUsuario: idUsuario || 1, 
         estado: 'Completado',
         total: totalFinal,
-        detalles: {
-          create: detalles 
-        },
+        detalles: { create: detalles },
         pago: {
-          create: {
-            metodo: metodoPago || 'Tarjeta',
-            estado: 'Aprobado'
-          }
+          create: { metodo: metodoPago || 'Tarjeta', estado: 'Aprobado' }
         }
       },
-      include: {
-        detalles: true,
-        pago: true
-      }
+      include: { detalles: true, pago: true }
     });
 
-    // 4. "Descontar del depósito" (Actualizar el stock en la base de datos)
+    // 4. Actualizar el stock
     for (const detalle of detalles) {
       await prisma.libro.update({
         where: { idLibro: detalle.idLibro },
@@ -119,11 +98,7 @@ app.post('/api/checkout', async (req, res) => {
       });
     }
 
-    res.json({
-      mensaje: "✅ ¡Compra exitosa! Ticket emitido.",
-      pedido: nuevoPedido
-    });
-
+    res.json({ mensaje: "✅ ¡Compra exitosa! Ticket emitido.", pedido: nuevoPedido });
   } catch (error) {
     console.error("❌ Error en la caja:", error);
     res.status(500).json({ error: "Error interno al procesar el pago." });
@@ -136,43 +111,47 @@ app.post('/api/pagar', async (req, res) => {
 
   try {
     const itemsParaMP = [];
-    console.log("🛒 Items recibidos del front:", items);
+    console.log("🛒 Items recibidos del front para Mercado Pago:", items);
 
-    // 1. Pasamos los productos por el escáner de la base de datos
+    // 1. Escaneamos los productos para asegurar el precio
     for (const item of items) {
       const libro = await prisma.libro.findUnique({ where: { idLibro: item.idLibro } });
       
-      // PARCHE DE SEGURIDAD
       if (!libro) {
-        console.log(`⚠️ Alerta: El frontend pidió el ID ${item.idLibro} pero no existe en MariaDB.`);
-        return res.status(400).json({ error: `El producto ID ${item.idLibro} no existe en la base de datos.` });
+        console.log(`⚠️ Alerta: El ID ${item.idLibro} no existe en la BD.`);
+        return res.status(400).json({ error: `El producto ID ${item.idLibro} no existe.` });
       }
 
-      // 2. Armamos el objeto con el formato EXACTO que exige Mercado Pago (snake_case)
+      console.log("🔎 Datos encontrados en la BD para este libro:", libro.titulo);
+
+      // Parche blindado para asegurar un precio
+      const precioFinal = Number(libro.precio) ? Number(libro.precio) : 1500;
+      const tituloFinal = libro.titulo ? libro.titulo : "Producto de Librería";
+
+      // 2. Armamos el objeto con el formato EXACTO
       itemsParaMP.push({
-        title: libro.titulo,
-        quantity: item.cantidad,
-        unit_price: Number(libro.precio), // <-- CORREGIDO: unit_price
-        currency_id: "ARS"                // <-- CORREGIDO: currency_id
+        title: tituloFinal,
+        quantity: Number(item.cantidad) || 1,
+        unit_price: precioFinal,
+        currency_id: "ARS"
       });
-    }
+    } // <--- ¡ESTA ERA LA LLAVE QUE FALTABA!
 
     // 3. Le armamos la Preferencia a Mercado Pago
     const preference = new Preference(mpClient);
-    
     const result = await preference.create({
       body: {
         items: itemsParaMP,
-        back_urls: {                      // <-- CORREGIDO: back_urls
+        back_urls: { 
           success: "https://libreria-frontend-ey5p.onrender.com", 
           failure: "https://libreria-frontend-ey5p.onrender.com",
           pending: "https://libreria-frontend-ey5p.onrender.com"
         },
-        auto_return: "approved"           // <-- CORREGIDO: auto_return
+        auto_return: "approved" 
       }
     });
 
-    console.log("🔗 URL generada por Mercado Pago con éxito:", result.init_point);
+    console.log("🔗 URL generada por MP:", result.init_point);
     res.json({ url: result.init_point });
 
   } catch (error) {
@@ -185,23 +164,15 @@ app.post('/api/pagar', async (req, res) => {
 app.post('/api/chat', async (req, res) => {
   const { mensaje } = req.body;
 
-  if (!mensaje) {
-    return res.status(400).json({ error: "No enviaste ningún mensaje." });
-  }
+  if (!mensaje) return res.status(400).json({ error: "No enviaste ningún mensaje." });
 
   try {
     console.log("⚡ Consultando a Groq (Modelo Llama 3)...");
 
-    // 1. LEEMOS TU BASE DE DATOS REAL (Y traemos la categoría)
-    const librosDisponibles = await prisma.libro.findMany({
-      include: { categoria: true } // Clave para saber qué tipo de producto es
-    });
+    const librosDisponibles = await prisma.libro.findMany({ include: { categoria: true } });
     
-    // Armamos el texto detallando el tipo/categoría para la IA
     const inventarioTexto = librosDisponibles.map(l => {
-      // Usamos la categoría de tu base de datos o un texto genérico si no la encuentra
       const tipoDeProducto = l.categoria ? l.categoria.nombre : "Libro"; 
-      
       return `- [Tipo: ${tipoDeProducto}] "${l.titulo}" | Precio: $${l.precio} | Stock: ${l.stock} u.`;
     }).join("\n");
 
@@ -219,18 +190,14 @@ app.post('/api/chat', async (req, res) => {
       4. Respondé SIEMPRE de forma breve (máximo 2 o 3 oraciones), amable y al pie de la letra con el inventario.
     `;
 
-    // 2. CONEXIÓN DIRECTA A GROQ
     const urlGroq = "https://api.groq.com/openai/v1/chat/completions";
-    
     const response = await fetch(urlGroq, {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
-        // Usamos la nueva variable del .env
         "Authorization": `Bearer ${process.env.GROQ_API_KEY}` 
       },
       body: JSON.stringify({
-        // Usamos la versión instantánea de Llama 3.1 que está activa y vuela
         model: "llama-3.1-8b-instant",
         messages: [
           { role: "system", content: contextoSistema },
@@ -242,27 +209,23 @@ app.post('/api/chat', async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("❌ Groq rebotó la conexión:", data.error || data);
-      return res.status(500).json({ error: `Error de Groq: ${data.error?.message || 'Desconocido'}` });
+      console.error("❌ Groq rebotó la conexión:", data);
+      return res.status(500).json({ error: "Error de conexión con la IA." });
     }
 
-    // 3. Extraemos el texto y lo devolvemos al frontend
-    const respuestaIA = data.choices[0].message.content;
-    res.json({ respuesta: respuestaIA });
+    res.json({ respuesta: data.choices[0].message.content });
 
   } catch (error) {
-    console.error("❌ Error en el motor de IA:", error.message || error);
+    console.error("❌ Error en el motor de IA:", error);
     res.status(500).json({ error: "El backend se colgó internamente." });
   }
 });
 
-// --- CONFIGURACIÓN FINAL PARA LOCAL Y VERCEL ---
-
-// Exportamos la app PRIMERO para que Vercel la encuentre al importar
+// --- CONFIGURACIÓN FINAL ---
 module.exports = app;
 
 if (require.main === module) {
   app.listen(process.env.PORT || 3000, () => {
-    console.log("Servidor iniciado");
+    console.log("🚀 Servidor iniciado y listo para operar.");
   });
 }
