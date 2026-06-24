@@ -256,3 +256,14 @@ app.post('/api/chat', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
 });
+
+// ... al final de tu server.js ...
+
+// 1. Mantenés tu listen para que ande en local
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
+});
+
+// 2. Exportás la app para que Vercel pueda usarla
+module.exports = app;
