@@ -252,10 +252,10 @@ app.post('/api/chat', async (req, res) => {
 // Exportamos la app PRIMERO para que Vercel la encuentre al importar
 module.exports = app;
 
-// Solo ejecutamos el 'listen' si estamos corriendo en local (no en Vercel)
-if (require.main === module) {
+if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 3000;
+
   app.listen(PORT, () => {
-    console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
+    console.log(`Servidor en ${PORT}`);
   });
 }
