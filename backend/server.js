@@ -142,19 +142,19 @@ app.post('/api/pagar', async (req, res) => {
     for (const item of items) {
       const libro = await prisma.libro.findUnique({ where: { idLibro: item.idLibro } });
       
-      // PARCHE DE SEGURIDAD: Si no lo encuentra en la BD, te avisa en la consola
+      // PARCHE DE SEGURIDAD
       if (!libro) {
-        console.log(`⚠️ Alerta: El frontend pidió el ID ${item.idLibro} pero no existe en MariaDB. ¡Revisá los IDs en Heidi!`);
+        console.log(`⚠️ Alerta: El frontend pidió el ID ${item.idLibro} pero no existe en MariaDB.`);
         return res.status(400).json({ error: `El producto ID ${item.idLibro} no existe en la base de datos.` });
       }
 
-      // 2. Armamos el objeto con AMBOS formatos para blindar el precio y la moneda
+      // 2. Armamos el objeto con el formato EXACTO que exige Mercado Pago (snake_case)
       itemsParaMP.push({
-  title: libro.titulo,
-  quantity: item.cantidad,
-  unitPrice: Number(libro.precio),
-  currencyId: "ARS"
-});
+        title: libro.titulo,
+        quantity: item.cantidad,
+        unit_price: Number(libro.precio), // <-- CORREGIDO: unit_price
+        currency_id: "ARS"                // <-- CORREGIDO: currency_id
+      });
     }
 
     // 3. Le armamos la Preferencia a Mercado Pago
@@ -163,12 +163,12 @@ app.post('/api/pagar', async (req, res) => {
     const result = await preference.create({
       body: {
         items: itemsParaMP,
-        backUrls: {
-          success: "https://www.google.com", 
-          failure: "https://www.google.com",
-          pending: "https://www.google.com"
+        back_urls: {                      // <-- CORREGIDO: back_urls
+          success: "https://libreria-frontend-ey5p.onrender.com", 
+          failure: "https://libreria-frontend-ey5p.onrender.com",
+          pending: "https://libreria-frontend-ey5p.onrender.com"
         },
-        autoReturn: "approved"
+        auto_return: "approved"           // <-- CORREGIDO: auto_return
       }
     });
 
