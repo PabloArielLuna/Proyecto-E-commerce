@@ -150,17 +150,11 @@ app.post('/api/pagar', async (req, res) => {
 
       // 2. Armamos el objeto con AMBOS formatos para blindar el precio y la moneda
       itemsParaMP.push({
-        title: libro.titulo,
-        quantity: item.cantidad,
-        
-        // Formato viejo (snake_case)
-        unit_price: Number(libro.precio),
-        currency_id: "ARS",
-        
-        // Formato nuevo (camelCase) - Obligatorio en V2
-        unitPrice: Number(libro.precio),
-        currencyId: "ARS"
-      });
+  title: libro.titulo,
+  quantity: item.cantidad,
+  unitPrice: Number(libro.precio),
+  currencyId: "ARS"
+});
     }
 
     // 3. Le armamos la Preferencia a Mercado Pago
