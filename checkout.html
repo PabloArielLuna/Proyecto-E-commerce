@@ -1580,128 +1580,122 @@
 
     /* ── Validar y pagar ── */
     async function procesarPago() {
-      const firstName = document.getElementById('firstName').value.trim();
-      const email = document.getElementById('email').value.trim();
+  const firstName = document.getElementById('firstName').value.trim();
+  const email = document.getElementById('email').value.trim();
 
-      if (!firstName || !email) { showToast('⚠️ Completá tus datos de contacto'); return; }
+  if (!firstName || !email) { showToast('⚠️ Completá tus datos de contacto'); return; }
 
-      if (entregaMode === 'envio') {
-        const addr = document.getElementById('address').value.trim();
-        const city = document.getElementById('city').value.trim();
-        if (!addr || !city) { showToast('⚠️ Completá la dirección de envío'); return; }
-      }
+  if (entregaMode === 'envio') {
+    const addr = document.getElementById('address').value.trim();
+    const city = document.getElementById('city').value.trim();
+    if (!addr || !city) { showToast('⚠️ Completá la dirección de envío'); return; }
+  }
 
-      // Validaciones de tarjeta solo si eligió ese método
-      if (payMethod === 'tarjeta') {
-        const cardNum = document.getElementById('cardNumber').value.replace(/\s/g, '');
-        const cardName = document.getElementById('cardName').value.trim();
-        const cardExp = document.getElementById('cardExp').value.trim();
-        const cardCvv = document.getElementById('cardCvv').value.trim();
+  // Validaciones de tarjeta solo si eligió ese método
+  if (payMethod === 'tarjeta') {
+    const cardNum = document.getElementById('cardNumber').value.replace(/\s/g, '');
+    const cardName = document.getElementById('cardName').value.trim();
+    const cardExp = document.getElementById('cardExp').value.trim();
+    const cardCvv = document.getElementById('cardCvv').value.trim();
 
-        if (cardNum.length < 16) { showToast('⚠️ Número de tarjeta incompleto'); return; }
-        if (!cardName) { showToast('⚠️ Ingresá el nombre del titular'); return; }
-        if (cardExp.length < 7) { showToast('⚠️ Fecha de vencimiento inválida'); return; }
-        if (cardCvv.length < 3) { showToast('⚠️ CVV incompleto'); return; }
-      }
+    if (cardNum.length < 16) { showToast('⚠️ Número de tarjeta incompleto'); return; }
+    if (!cardName) { showToast('⚠️ Ingresá el nombre del titular'); return; }
+    if (cardExp.length < 7) { showToast('⚠️ Fecha de vencimiento inválida'); return; }
+    if (cardCvv.length < 3) { showToast('⚠️ CVV incompleto'); return; }
+  }
 
-      const btn = document.getElementById('btnPagar');
-      const btnText = document.getElementById('btnPayText');
-      btnText.textContent = 'Procesando…';
-      btn.disabled = true;
+  const btn = document.getElementById('btnPagar');
+  const btnText = document.getElementById('btnPayText');
+  btnText.textContent = 'Procesando…';
+  btn.disabled = true;
 
-      // Datos comunes para el backend
-      const itemsParaBackend = cart.map(item => ({
-        idLibro: item.id,
-        cantidad: item.qty
-      }));
+  // Datos comunes para el backend
+  const itemsParaBackend = cart.map(item => ({
+    idLibro: item.id,
+    cantidad: item.qty
+  }));
 
-      // ── FLUJO MERCADO PAGO ──────────────────────────────────────────
-      if (payMethod === 'mp') {
-        const payload = {
-          items: itemsParaBackend,
-          idUsuario: 1,
-          metodoPago: 'MercadoPago',
-          comprador: { nombre: firstName, email }
-        };
-        try {
-          const BASE_URL =
-            window.location.hostname === 'localhost'
-              ? 'http://localhost:3000'
-              : '';
+  // Definimos LA ÚNICA base URL que importa ahora (Render)
+  // Mantenemos el localhost por si algún día quieren probarlo en sus compus sin internet
+  const BASE_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:3000'
+    : 'https://proyecto-e-commerce-4iw3.onrender.com';
 
-          const response = await fetch(
-            `${BASE_URL}/api/pagar`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
+  // ── FLUJO MERCADO PAGO ──────────────────────────────────────────
+  if (payMethod === 'mp') {
+    const payload = {
+      items: itemsParaBackend,
+      idUsuario: 1,
+      metodoPago: 'MercadoPago',
+      comprador: { nombre: firstName, email }
+    };
+    
+    try {
+      // Mercado Pago va al endpoint /api/pagar
+      const response = await fetch(`${BASE_URL}/api/pagar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-          let data;
-
-          try {
-            data = await response.json();
-          } catch {
-            const text = await response.text();
-
-            console.log(text);
-
-            throw new Error("El backend devolvió HTML y no JSON");
-          }
-
-          if (response.ok && data.url) {
-            // ✅ Redirigir a la pantalla segura de Mercado Pago
-            window.location.href = data.url;
-          } else {
-            showToast('⚠️ Error al iniciar pago: ' + (data.error || 'Respuesta inesperada'));
-            btnText.textContent = 'Pagar con Mercado Pago';
-            btn.disabled = false;
-          }
-        } catch (error) {
-          showToast('⚠️ Error de conexión con el servidor. ¿Prendiste el backend?');
-          console.error(error);
-          btnText.textContent = 'Pagar con Mercado Pago';
-          btn.disabled = false;
-        }
-        return; // ← salimos, el flujo MP no sigue abajo
-      }
-
-      // ── FLUJO TARJETA (existente) ───────────────────────────────────
-      const payload = {
-        items: itemsParaBackend,
-        idUsuario: 1,
-        metodoPago: 'Tarjeta'
-      };
-
-      // Esto detecta si estoy en local o en la nube
-      const BASE_URL = window.location.hostname === 'localhost'
-        ? 'http://localhost:3000'
-        : 'https://proyecto-e-commerce-psi.vercel.app';
-
+      let data;
       try {
-        const response = await fetch(`${BASE_URL}/api/pagar`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+        data = await response.json();
+      } catch {
+        throw new Error("El backend devolvió un error que no es JSON. Revisá los logs de Render.");
+      }
 
-        const data = await response.json();
-
-        if (response.ok) {
-          document.getElementById('successOrderNum').textContent = 'Pedido #' + data.pedido.idPedido;
-          document.getElementById('successOverlay').classList.add('show');
-          localStorage.removeItem('cart');
-        } else {
-          showToast('⚠️ Error: ' + data.error);
-          btnText.textContent = 'Confirmar y pagar';
-          btn.disabled = false;
-        }
-      } catch (error) {
-        showToast('⚠️ Error de conexión con el servidor. ¿Prendiste el backend?');
-        console.error(error);
-        btnText.textContent = 'Confirmar y pagar';
+      if (response.ok && data.url) {
+        // ✅ Redirigir a la pantalla segura de Mercado Pago
+        window.location.href = data.url;
+      } else {
+        showToast('⚠️ Error al iniciar pago: ' + (data.error || 'Respuesta inesperada'));
+        btnText.textContent = 'Pagar con Mercado Pago';
         btn.disabled = false;
       }
+    } catch (error) {
+      showToast('⚠️ Error de conexión. ¿El servidor de Render está vivo?');
+      console.error(error);
+      btnText.textContent = 'Pagar con Mercado Pago';
+      btn.disabled = false;
     }
+    return; // ← salimos, el flujo MP no sigue abajo
+  }
+
+  // ── FLUJO TARJETA (Simulado - Base de Datos) ─────────────────────
+  const payload = {
+    items: itemsParaBackend,
+    idUsuario: 1,
+    metodoPago: 'Tarjeta'
+  };
+
+  try {
+    // La tarjeta va al endpoint /api/checkout (el que guarda en BD y descuenta stock)
+    const response = await fetch(`${BASE_URL}/api/checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // Mostramos el popup de éxito que armó Nico
+      document.getElementById('successOrderNum').textContent = 'Pedido #' + data.pedido.idPedido;
+      document.getElementById('successOverlay').classList.add('show');
+      localStorage.removeItem('cart');
+    } else {
+      showToast('⚠️ Error en la compra: ' + (data.error || 'Revisá el stock.'));
+      btnText.textContent = 'Confirmar y pagar';
+      btn.disabled = false;
+    }
+  } catch (error) {
+    showToast('⚠️ Error de conexión con el servidor.');
+    console.error(error);
+    btnText.textContent = 'Confirmar y pagar';
+    btn.disabled = false;
+  }
+}
 
     /* ── Toast ── */
     let toastTimer;
