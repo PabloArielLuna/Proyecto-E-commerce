@@ -252,10 +252,8 @@ app.post('/api/chat', async (req, res) => {
 // Exportamos la app PRIMERO para que Vercel la encuentre al importar
 module.exports = app;
 
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 3000;
-
-  app.listen(PORT, () => {
-    console.log(`Servidor en ${PORT}`);
+if (require.main === module) {
+  app.listen(process.env.PORT || 3000, () => {
+    console.log("Servidor iniciado");
   });
 }
