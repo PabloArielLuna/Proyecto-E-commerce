@@ -3,118 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Novedades Editoriales · Librería Digital</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-
+  <title>Novedades · Librería Digital</title>
   <style>
-    /* Usamos las mismas variables y estilos base que en index.html para mantener consistencia */
-    :root {
-      --cream: #f5f0e8; --cream2: #ede6d6; --paper: #faf7f2; --ink: #1a1510;
-      --ink2: #3d3328; --forest: #2d5a3d; --forest2: #1e3d2a; --gold: #c4922a;
-      --gold2: #e8b84b; --red: #9b2c2c; --muted: #8a7d6b; --border: #d4c9b5;
-      --shadow: rgba(26,21,16,.12);
-      --font-display: 'Playfair Display', Georgia, serif;
-      --font-body: 'Lora', Georgia, serif;
-      --font-ui: 'DM Sans', sans-serif;
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
-
-    /* - NAVBAR REUTILIZADA - */
-    .navbar {
-      position: sticky; top: 0; z-index: 100;
-      background: var(--forest2);
-      border-bottom: 3px solid var(--gold);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 2.5rem; height: 64px;
-    }
-    .nav-logo { font-family: var(--font-display); font-size: 1.45rem; font-weight: 900; color: var(--cream); text-decoration: none; display: flex; align-items: center; gap: .55rem; }
-    .nav-logo span.accent { color: var(--gold2); font-style: italic; }
-    .nav-links { display: flex; align-items: center; gap: .25rem; list-style: none; }
-    .nav-links a { font-family: var(--font-ui); font-size: .82rem; font-weight: 500; text-transform: uppercase; color: var(--cream2); text-decoration: none; padding: .45rem .9rem; border-radius: 3px; transition: background .2s, color .2s; }
-    .nav-links a:hover { background: rgba(255,255,255,.1); color: var(--gold2); }
-    /* Clase para resaltar la página actual */
-    .nav-links a.active { background: rgba(255,255,255,.1); color: var(--gold2); }
-
-    /* - ESTILOS HERO Y CATÁLOGO IGUALES AL INDEX - */
-    .hero { background: linear-gradient(135deg, var(--forest2) 0%, var(--forest) 60%, #3a6b4a 100%); padding: 2rem 2.5rem; text-align: center; color: var(--cream); }
-    .hero h1 { font-family: var(--font-display); font-size: 3rem; margin-bottom: 1rem; }
-    .hero em { color: var(--gold2); }
-    .btn-hero { padding: .75rem 2rem; background: var(--gold); color: var(--ink); border: none; cursor: pointer; }
+    /* Estilos base consistentes */
+    :root { --forest2: #1e3d2a; --gold: #c4922a; --gold2: #e8b84b; --cream: #f5f0e8; --paper: #faf7f2; }
+    body { background: var(--paper); font-family: sans-serif; margin: 0; }
     
-    .catalog { padding: 4rem 2.5rem; }
-    .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 2rem; }
-    
-    /* Reutilizamos .book-card y componentes de catálogo del index.html */
-    .book-card { background: var(--cream); border: 1.5px solid var(--border); border-radius: 4px; padding: 1rem; }
-    .btn-disabled { background: var(--border); color: var(--muted); cursor: not-allowed; padding: .4rem .75rem; border: none; width: 100%; }
+    /* Navbar */
+    .navbar { background: var(--forest2); height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 2.5rem; border-bottom: 3px solid var(--gold); }
+    .nav-logo { color: var(--cream); text-decoration: none; font-weight: 900; font-size: 1.4rem; }
+    .nav-links { display: flex; gap: 1rem; list-style: none; }
+    .nav-links a { color: var(--cream); text-decoration: none; font-size: 0.8rem; text-transform: uppercase; }
+    .btn-nav-ghost { background: transparent; color: white; border: 1px solid white; padding: 0.4rem 1rem; cursor: pointer; }
 
-    footer { background: var(--forest2); color: var(--cream2); padding: 3rem 2.5rem; margin-top: 4rem; text-align: center; }
+    /* Hero */
+    .hero { background: var(--forest2); padding: 3rem 2.5rem; text-align: center; color: white; }
+    .hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+    
+    /* Contenedor de libros (igual al tuyo) */
+    .novedades-container { display: flex; justify-content: center; gap: 2rem; padding: 3rem; flex-wrap: wrap; }
+    .book-card { border: 1px solid #ccc; padding: 1.5rem; width: 220px; background: #fdfaf5; }
+    .book-card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+    .book-card p { font-size: 0.9rem; color: #555; }
+    .btn-disabled { background: #dcdcdc; border: none; padding: 0.5rem; width: 100%; margin-top: 1rem; cursor: not-allowed; }
   </style>
 </head>
 <body>
 
-  <nav class="navbar">
-    <a href="index.html" class="nav-logo">Librería <span class="accent">Digital</span></a>
-    <ul class="nav-links">
-      <li><a href="index.html#catalogo">Catálogo</a></li>
-      <li><a href="novedades.html" class="active">Novedades</a></li>
-      <li><a href="#" onclick="goToProfile(); return false;">Mi Perfil</a></li>
-    </ul>
-    <div class="nav-actions">
-        <button class="btn-nav btn-nav-ghost" onclick="window.location.href='index.html'">Volver al Inicio</button>
-    </div>
-  </nav>
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">Librería <span style="color:var(--gold2)">Digital</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#catalogo">Catálogo</a></li>
+    <li><a href="novedades.html" style="color: var(--gold2); border-bottom: 2px solid var(--gold2);">Novedades</a></li>
+    <li><a href="#" onclick="goToProfile(); return false;">Mi Perfil</a></li>
+  </ul>
+  <button class="btn-nav-ghost" onclick="window.location.href='index.html'">Volver al Inicio</button>
+</nav>
 
-  <section class="hero">
-    <h1>Novedades <em>editoriales</em></h1>
-    <p>Los últimos lanzamientos en libros, cursos y contenidos digitales.</p>
-  </section>
+<section class="hero">
+  <h1>Novedades <em>editoriales</em></h1>
+  <p>Los últimos lanzamientos en libros, cursos y contenidos digitales.</p>
+</section>
 
-  <section id="catalogo" class="catalog">
-    <div class="catalog-grid" id="grid">
-      </div>
-  </section>
+<div class="novedades-container">
+  <!-- Tarjeta 1 -->
+  <article class="book-card">
+    <h3>Atlas del Futuro</h3>
+    <p>Lucía Bermejo</p>
+    <p><strong>$3900</strong></p>
+    <button class="btn-disabled">Próximamente</button>
+  </article>
 
-  <footer>
-    <p>© 2026 Librería Digital · Proyecto POO – Grupo 5</p>
-  </footer>
+  <!-- Tarjeta 2 -->
+  <article class="book-card">
+    <h3>IA para Creativos</h3>
+    <p>Martín Solé</p>
+    <p><strong>$3100</strong></p>
+    <button class="btn-disabled">Próximamente</button>
+  </article>
 
-  <script>
-    const productos = [
-      { id: 101, titulo: "Atlas del Futuro", autor: "Lucía Bermejo", precio: 3900, cover: "cover-1" },
-      { id: 102, titulo: "IA para Creativos", autor: "Martín Solé", precio: 3100, cover: "cover-2" },
-      { id: 103, titulo: "El Jardín de las Horas", autor: "Inés Calatrava", precio: 2400, cover: "cover-3" },
-      { id: 104, titulo: "Arquitecturas Limpias", autor: "Robert C. Martin", precio: 3500, cover: "cover-4" }
-    ];
+  <!-- Tarjeta 3 -->
+  <article class="book-card">
+    <h3>El Jardín de las Horas</h3>
+    <p>Inés Calatrava</p>
+    <p><strong>$2400</strong></p>
+    <button class="btn-disabled">Próximamente</button>
+  </article>
 
-    function renderCatalog() {
-      const grid = document.getElementById('grid');
-      grid.innerHTML = productos.map(p => `
-        <article class="book-card">
-          <div class="book-cover-art ${p.cover}">
-            <h3>${p.titulo}</h3>
-            <p>${p.autor}</p>
-          </div>
-          <div class="book-info">
-            <h3>${p.titulo}</h3>
-            <p>$${p.precio}</p>
-            <button class="btn-disabled" disabled>Próximamente</button>
-          </div>
-        </article>
-      `).join('');
-    }
+  <!-- Tarjeta 4 -->
+  <article class="book-card">
+    <h3>Arquitecturas Limpias</h3>
+    <p>Robert C. Martin</p>
+    <p><strong>$3500</strong></p>
+    <button class="btn-disabled">Próximamente</button>
+  </article>
+</div>
 
-    function goToProfile() {
-      const name = localStorage.getItem("userName");
-      const email = localStorage.getItem("userEmail");
-      window.location.href = `perfil.html?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
-    }
+<script>
+  function goToProfile() {
+    const name = localStorage.getItem("userName");
+    const email = localStorage.getItem("userEmail");
+    window.location.href = `perfil.html?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+  }
+</script>
 
-    renderCatalog();
-  </script>
 </body>
 </html>
