@@ -192,22 +192,30 @@ app.post('/api/chat', async (req, res) => {
   try {
     console.log("⚡ Consultando a Groq (Modelo Llama 3)...");
 
-    // 1. LEEMOS TU BASE DE DATOS REAL
-    const librosDisponibles = await prisma.libro.findMany();
-    const inventarioTexto = librosDisponibles.map(l => 
-      `- "${l.titulo}" | Precio: $${l.precio} | Stock: ${l.stock} u.`
-    ).join("\n");
+    // 1. LEEMOS TU BASE DE DATOS REAL (Y traemos la categoría)
+    const librosDisponibles = await prisma.libro.findMany({
+      include: { categoria: true } // Clave para saber qué tipo de producto es
+    });
+    
+    // Armamos el texto detallando el tipo/categoría para la IA
+    const inventarioTexto = librosDisponibles.map(l => {
+      // Usamos la categoría de tu base de datos o un texto genérico si no la encuentra
+      const tipoDeProducto = l.categoria ? l.categoria.nombre : "Libro"; 
+      
+      return `- [Tipo: ${tipoDeProducto}] "${l.titulo}" | Precio: $${l.precio} | Stock: ${l.stock} u.`;
+    }).join("\n");
 
     const contextoSistema = `
       Sos el asistente virtual buena onda de "Librería Digital".
       Tu objetivo es responder de forma amable, corta y concisa.
       
       REGLAS DE ORO:
-      1. SÓLO podés recomendar libros de esta lista oficial:
+      1. Nuestro catálogo tiene distintos formatos (Libros físicos, Cursos, Digitales). SÓLO podés recomendar de esta lista oficial:
       ${inventarioTexto}
-      2. Si te preguntan por un libro que NO está, decí que no lo tenés en catálogo.
-      3. Si el stock es 0, avisá que está agotado.
-      4. Respondé siempre de forma breve (máximo 2 o 3 oraciones).
+      2. Prestá MUCHA ATENCIÓN a la etiqueta [Tipo: ...]. Si el usuario pide un "Curso", recomendá solo los que tienen esa etiqueta.
+      3. Si te preguntan por un producto que NO está, decí que no lo tenés en catálogo.
+      4. Si el stock es 0, avisá que está agotado.
+      5. Respondé siempre de forma breve (máximo 2 o 3 oraciones).
     `;
 
     // 2. CONEXIÓN DIRECTA A GROQ
