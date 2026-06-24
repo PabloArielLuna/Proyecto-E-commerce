@@ -135,8 +135,8 @@ app.post('/api/pagar', async (req, res) => {
         unit_price: precioFinal,
         currency_id: "ARS"
       });
-    } // <--- ¡ESTA ERA LA LLAVE QUE FALTABA!
-
+    } 
+    console.log("📦 LO QUE SE MANDA A MP:", JSON.stringify(itemsParaMP, null, 2));
     // 3. Le armamos la Preferencia a Mercado Pago
     const preference = new Preference(mpClient);
     const result = await preference.create({
